@@ -1,0 +1,26 @@
+version: "3"
+services:
+  music_server:
+    build: .
+    image: "music_server"
+    user: "node"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./:/home/node/app
+    ports:
+      - "3000:4000"
+    command: "npm start"
+    depends_on:
+      - "postgres"
+  postgres:
+    image: "postgres:latest"
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_USER=surya
+      - POSTGRES_DB=music
+    ports:
+      - "8080:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data

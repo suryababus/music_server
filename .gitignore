@@ -1,3 +1,5 @@
 node_modules
 backup
 TODO
+dist
+postgres-data
