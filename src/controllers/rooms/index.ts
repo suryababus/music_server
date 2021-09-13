@@ -2,25 +2,64 @@ import { RequestHandler } from "express"
 import { Room } from "../../entities/room"
 import { createRoomInput } from "./schema"
 
-export const getRooms: RequestHandler = (req, res, next) => {
-  //TODO: Get rooms based on popularity limit result to 20
-  //started working
+/**
+ * Rooms GET request:
+ * Fetches All rooms
+ * 
+ */
+export const getRooms: RequestHandler = async (req, res, next) => {
+  try{
+    res.sendResponse(200, await Room.find({}))
+    return
+  } catch (err) {
+    next(err)
+  }
+  
 }
 
 export const searchRooms: RequestHandler = async (req, res, next) => {
   //TODO: search rooms based on name limit result to 20
 }
 
+/**
+ * Rooms GET request:
+ * Fetches rooms with id
+ * 
+ * @param id
+ * @returns Room
+ */
+
 export const getRoom: RequestHandler = async (req, res, next) => {
-  //TODO: get room based on room id
+  try{
+    const id = req.params.id;
+    var curr_room;
+    try{
+      const room = await Room.find({
+        id,
+      })
+      curr_room = room
+    }catch( err ){
+      res.sendError(404, `No such room with id ${id} exist.`)
+    }
+    res.sendResponse(200, curr_room)
+  } catch (err) {
+    next(err)
+  }
 }
 
 export const joinRoom: RequestHandler = async (req, res, next) => {
   //TODO: join room based on room id
 }
 
+/**
+ * Rooms POST request:
+ * Craetes a new room
+ * 
+ * @param name
+ * @returns Room
+ * 
+ */
 export const createRoom: RequestHandler = async (req, res, next) => {
-  //TODO: create room
   try {
     const { name } = await createRoomInput.validateAsync(req.body)
 
