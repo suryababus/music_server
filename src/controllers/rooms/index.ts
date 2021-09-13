@@ -4,6 +4,7 @@ import { createRoomInput } from "./schema"
 
 export const getRooms: RequestHandler = (req, res, next) => {
   //TODO: Get rooms based on popularity limit result to 20
+  //started working
 }
 
 export const searchRooms: RequestHandler = async (req, res, next) => {
