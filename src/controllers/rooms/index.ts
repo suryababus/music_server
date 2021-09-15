@@ -1,5 +1,4 @@
 import { RequestHandler } from "express"
-import { getRepository } from "typeorm"
 import { Room } from "../../entities/room"
 import { createRoomInput } from "./schema"
 import { verifyRoomWithId, verifyRoomWithName} from "./utils"
@@ -27,8 +26,7 @@ export const searchRooms: RequestHandler = async (req, res, next) => {
   try
   {
     const name = req.params.name;
-    const roomDetails = await getRepository(Room)
-                              .createQueryBuilder()
+    const roomDetails = await Room.createQueryBuilder()
                               .select()
                               .where("name ILIKE :name", {
                                 name : `%${name}%`
