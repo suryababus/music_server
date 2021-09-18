@@ -1,5 +1,6 @@
 import { RequestHandler } from "express"
 import { Room } from "../../entities/room"
+import { User } from "../../entities/user"
 import { createRoomInput } from "./schema"
 import { verifyRoomWithId, verifyRoomWithName} from "./utils"
 
@@ -12,25 +13,26 @@ export const getRooms: RequestHandler = async (req, res, next) => {
   try
   {
     res.sendResponse(200, await Room.find({
-      take: 50
+      relations : ["created_by","modified_by"],
+      take : 50
     }))
-    return
   } 
   catch (err) {
     next(err)
   }
-  
 }
 
 export const searchRooms: RequestHandler = async (req, res, next) => {
   try
   {
-    const name = req.params.name;
+    const name = req.query.key;
     const roomDetails = await Room.createQueryBuilder()
                               .select()
                               .where("name ILIKE :name", {
                                 name : `%${name}%`
-                              }).getMany();
+                              })
+                              .limit(50)
+                              .getMany();
     res.sendResponse(200,roomDetails)
   }
   catch(err){
@@ -52,10 +54,15 @@ export const getRoom: RequestHandler = async (req, res, next) => {
     const id = req.params.id;
     try
     {
-      const room = await Room.find({
-        id,
+      const result = await Room.find({
+        where : { id },
+        relations : ["created_by","modified_by"]
       })
-      res.sendResponse(200, room)
+      // var responseFormat = {
+      //   "created_by" : ["id","name"],
+      //   "modified_by" : ["id","name"]
+      // }
+      res.sendResponse(200, result)
       return
     }
     catch( err ){
@@ -88,9 +95,17 @@ export const createRoom: RequestHandler = async (req, res, next) => {
       res.sendError(409, `Already room with name ${name} exist.`)
       return
     }
-    const room = await Room.create({
-      name,
-    }).save()
+    const room = await Room.create(
+      {
+        name,
+        "created_by": User.create({
+          "id":req.user.id
+        }),
+        "modified_by":req.user.id,
+      }
+    ).save()
+
+
     res.sendResponse(200, room)
     return
   } 
@@ -126,7 +141,8 @@ export const createRoom: RequestHandler = async (req, res, next) => {
       const updatedRoom = await Room.update({
         id,
       },{
-        name : name
+        name : name,
+        "modified_by":req.user.id
       });
       res.sendResponse(200, updatedRoom,"Room details updated.")
       return
@@ -172,5 +188,14 @@ export const createRoom: RequestHandler = async (req, res, next) => {
   }
 }
 export const addSongToRoom: RequestHandler = async (req, res, next) => {
-  //TODO: add song to room based on room id
+  try 
+  {
+    const id = req.params.id;
+    const { songs } = await createRoomInput.validateAsync(req.body)
+    console.log(id)
+    console.log(songs)
+  }
+  catch(err){
+    next(err)
+  }
 }

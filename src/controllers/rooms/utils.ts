@@ -1,4 +1,5 @@
 import { Room } from "../../entities/room"
+import { User } from "../../entities/user";
 export async function verifyRoomWithId(id : any){
     const alreadyExist = await Room.find({
         id,

@@ -12,7 +12,7 @@ export class User extends BaseEntity{
         type:'text',
         name:'first_name'
     })
-    displayName!: String;
+    name!: String;
 
     @Column({
         type:'text',
