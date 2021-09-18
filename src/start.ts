@@ -17,7 +17,6 @@ const connectToDB = async () => {
     await createConnection()
     console.log("DB Connected")
   } catch (error) {
-    console.log(error)
     throw new Error("DB connection failed")
   }
 }
