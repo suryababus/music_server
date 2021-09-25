@@ -1,49 +1,53 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Room } from "./room";
-import { User } from "./user";
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm"
+import { Room } from "./room"
+import { User } from "./user"
 
 @Entity("song")
 export class Song extends BaseEntity {
-    @PrimaryGeneratedColumn("uuid")
-    id!: String
-    
-    @Column({
-        type: "text",
-        name: "spotify_url",
-    })
-    spotify_url!: String
+  @PrimaryGeneratedColumn("uuid")
+  id!: String
 
-    @Column({
-        type: "text",
-        name: "room_id",
-    })
-    room_id!: Song
+  @Column({
+    type: "text",
+    name: "spotify_url",
+  })
+  spotify_url!: String
 
-    @Column({
-        type: "text",
-        name: "name",
-    })
-    name!: String
+  @ManyToOne((type) => Room, (room) => room.id)
+  @JoinColumn({ name: "room" })
+  room!: Room
 
-    @Column({
-        type: "int",
-        name: "likes",
-    })
-    likes!: Number
+  @Column({
+    type: "text",
+    name: "name",
+  })
+  name!: String
 
-    @Column({
-        type: "int",
-        name: "dislikes",
-    })
-    dislikes!: Number
+  @Column({
+    type: "int",
+    name: "likes",
+  })
+  likes!: Number
 
-    @ManyToOne(
-        type => User,
-        user => user.id
-    )
-    added_by!: User
+  @Column({
+    type: "int",
+    name: "dislikes",
+  })
+  dislikes!: Number
 
-    @CreateDateColumn()
-    added_time!: Number
+  @ManyToOne((type) => User, (user) => user.id)
+  @JoinColumn({ name: "added_by" })
+  added_by!: User
 
+  @CreateDateColumn()
+  added_time!: Number
 }

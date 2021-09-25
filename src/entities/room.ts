@@ -24,25 +24,18 @@ export class Room extends BaseEntity {
   })
   name!: String
 
-  @ManyToOne(
-    type => User,
-    user => user.id
-  )
+  @ManyToOne((type) => User, (user) => user.id)
   created_by!: User
 
   @CreateDateColumn()
   created_time!: Number
 
-  @ManyToOne(
-    type => User,
-    user => user.id
-  )
+  @ManyToOne((type) => User, (user) => user.id)
   modified_by!: User
 
   @UpdateDateColumn()
   modified_time!: Number
 
-  @ManyToOne(type => Song, song => song.room_id)
-  songs!: Song;
-
+  @OneToMany(() => Song, (song) => song.room)
+  songs!: Song[]
 }
