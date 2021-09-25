@@ -53,11 +53,11 @@ export const getRoom: RequestHandler = async (req, res, next) => {
   try {
     const id = req.params.id
     try {
-      const rooms = await Room.findOne({
+      const room = await Room.findOne({
         where: { id },
         relations: ["created_by", "modified_by", "songs"],
       })
-      res.sendResponse(200, { rooms })
+      res.sendResponse(200, room)
       return
     } catch (err) {
       res.sendError(404, `No such room with id ${id} exist.`)
