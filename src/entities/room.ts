@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm"
+import { Song } from "./song"
 import { User } from "./user"
 
 @Entity("room")
@@ -36,10 +37,12 @@ export class Room extends BaseEntity {
     type => User,
     user => user.id
   )
-  modified_by!: String
+  modified_by!: User
 
   @UpdateDateColumn()
   modified_time!: Number
 
-  //TODO add columns
+  @ManyToOne(type => Song, song => song.room_id)
+  songs!: Song;
+
 }

@@ -1,7 +1,9 @@
 import { RequestHandler } from "express"
+import { createQueryBuilder } from "typeorm"
 import { Room } from "../../entities/room"
+import { Song } from "../../entities/song"
 import { User } from "../../entities/user"
-import { createRoomInput } from "./schema"
+import { createRoomInput , createSongsInput } from "./schema"
 import { verifyRoomWithId, verifyRoomWithName} from "./utils"
 
 /**
@@ -56,12 +58,12 @@ export const getRoom: RequestHandler = async (req, res, next) => {
     {
       const result = await Room.find({
         where : { id },
-        relations : ["created_by","modified_by"]
-      })
-      // var responseFormat = {
-      //   "created_by" : ["id","name"],
-      //   "modified_by" : ["id","name"]
-      // }
+        relations : ["created_by","modified_by","songs"]
+      }) 
+      // const result = await Room.createQueryBuilder('room')
+      //               .leftJoinAndSelect(Song, 'song', 'room.id = song.room_id')
+      //               .getOne();
+      // console.log(result)
       res.sendResponse(200, result)
       return
     }
@@ -101,7 +103,9 @@ export const createRoom: RequestHandler = async (req, res, next) => {
         "created_by": User.create({
           "id":req.user.id
         }),
-        "modified_by":req.user.id,
+        "modified_by":User.create({
+          "id":req.user.id
+        })
       }
     ).save()
 
@@ -142,7 +146,9 @@ export const createRoom: RequestHandler = async (req, res, next) => {
         id,
       },{
         name : name,
-        "modified_by":req.user.id
+        "modified_by": User.create({
+          "id":req.user.id
+        })
       });
       res.sendResponse(200, updatedRoom,"Room details updated.")
       return
@@ -190,10 +196,28 @@ export const createRoom: RequestHandler = async (req, res, next) => {
 export const addSongToRoom: RequestHandler = async (req, res, next) => {
   try 
   {
-    const id = req.params.id;
-    const { songs } = await createRoomInput.validateAsync(req.body)
-    console.log(id)
-    console.log(songs)
+    const roomId = req.params.id;
+    const { name, spotify_url} = await createSongsInput.validateAsync(req.body)
+    if(await verifyRoomWithId(roomId) == false){
+      res.sendError(404, `No such room with roomId ${roomId} exist.`)
+      return
+    }
+    const userId = req.user.id;
+    const song = await Song.create({
+        "name" : name,
+        "added_by": User.create({
+          "id":userId
+        }),
+        "spotify_url" : spotify_url,
+        "likes" : 0,
+        "dislikes" : 0,
+        "room_id" : Room.create({
+          id : roomId
+        })
+      }
+    ).save()
+    res.sendResponse(200, song)
+    return
   }
   catch(err){
     next(err)

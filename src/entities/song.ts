@@ -1,4 +1,6 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Room } from "./room";
+import { User } from "./user";
 
 @Entity("song")
 export class Song extends BaseEntity {
@@ -7,15 +9,15 @@ export class Song extends BaseEntity {
     
     @Column({
         type: "text",
-        name: "sportify_id",
+        name: "spotify_url",
     })
-    sportify_id!: String
+    spotify_url!: String
 
     @Column({
         type: "text",
         name: "room_id",
     })
-    room_id!: String
+    room_id!: Song
 
     @Column({
         type: "text",
@@ -31,16 +33,17 @@ export class Song extends BaseEntity {
 
     @Column({
         type: "int",
-        name: "dis_likes",
+        name: "dislikes",
     })
-    dis_likes!: Number
+    dislikes!: Number
 
-    @Column({
-        type: "text",
-        name: "added_by",
-    })
-    added_by!: String
+    @ManyToOne(
+        type => User,
+        user => user.id
+    )
+    added_by!: User
 
     @CreateDateColumn()
     added_time!: Number
+
 }
