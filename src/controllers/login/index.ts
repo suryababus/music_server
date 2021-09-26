@@ -22,7 +22,7 @@ export const login: RequestHandler = async (req, res, next) => {
       } catch (err) {
         // create new user
         const user = await User.create({
-          displayName: display_name,
+          name: display_name,
           email,
           id,
         }).save()
