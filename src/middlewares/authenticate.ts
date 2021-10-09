@@ -1,11 +1,16 @@
 import { Request, Response } from "express"
 import jwt from "jsonwebtoken"
 
+export const verifyToken = (token: string) => {
+  const id = jwt.verify(token, "heyiamsecret") as any
+  return id
+}
+
 export const authenticate = (req: Request, res: Response, next: any) => {
   const { token } = req.headers
-  if (token) {
+  if (typeof token === "string") {
     try {
-      const id = jwt.verify(token as string, "heyiamsecret") as any
+      const id = verifyToken(token)
       req.user = {
         email: "",
         id,

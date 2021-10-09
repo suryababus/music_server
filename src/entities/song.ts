@@ -48,6 +48,12 @@ export class Song extends BaseEntity {
   @JoinColumn({ name: "added_by" })
   added_by!: User
 
+  @Column({
+    type: "text",
+    name: "added_by_user_name",
+  })
+  added_by_user_name!: String
+
   @CreateDateColumn()
   added_time!: Number
 }

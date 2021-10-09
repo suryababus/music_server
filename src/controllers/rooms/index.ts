@@ -3,6 +3,7 @@ import { createQueryBuilder } from "typeorm"
 import { Room } from "../../entities/room"
 import { Song } from "../../entities/song"
 import { User } from "../../entities/user"
+import { rooms } from "../../web_socket/events"
 import { createRoomInput, createSongsInput } from "./schema"
 import { verifyRoomWithId, verifyRoomWithName } from "./utils"
 
@@ -64,6 +65,7 @@ export const getRoom: RequestHandler = async (req, res, next) => {
       return
     }
   } catch (err) {
+    console.log(err)
     next(err)
   }
 }
@@ -185,11 +187,13 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
       return
     }
     const userId = req.user.id
+    const user = await User.findOneOrFail({ id: userId })
     const song = await Song.create({
       name: name,
       added_by: User.create({
         id: userId,
       }),
+      added_by_user_name: user?.name || "",
       spotify_url: spotify_url,
       likes: 0,
       dislikes: 0,
@@ -198,6 +202,22 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
       }),
     }).save()
     res.sendResponse(200, song)
+    rooms[roomId].forEach((ws) => {
+      try {
+        ws?.send(
+          JSON.stringify({
+            action: "song_added",
+            data: song,
+          })
+        )
+      } catch (err) {
+        console.log(err)
+        if (ws?.CLOSED) {
+          const index = rooms[roomId].indexOf(ws)
+          rooms[roomId].splice(index, 1)
+        }
+      }
+    })
     return
   } catch (err) {
     next(err)
