@@ -1,0 +1,15 @@
+Rest
+    add song add
+    add song remove
+    add song like
+    add song dislike
+    add create room
+    add delete room
+socket
+    add connection
+    add ping and pong
+    add event song like
+    add event song dislike
+    add event song add
+    add event song remove
+    add event song sync
