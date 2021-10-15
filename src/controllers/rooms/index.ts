@@ -173,22 +173,19 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
     }
     const userId = req.user.id
     const user = await User.findOneOrFail({ id: userId })
-    var song:any = "";
-    for(var i = 0 ; i < 10000 ; i++){
-    song = await Song.create({
-      name: name+i,
+    const song = await Song.create({
+      name: name,
       added_by: User.create({
         id: userId,
       }),
       added_by_user_name: user?.name || "",
-      spotify_url: spotify_url+i,
+      spotify_url: spotify_url,
       likes: 0,
       dislikes: 0,
       room: await Room.findOne({
         id: roomId,
       }),
     }).save()
-    }
     res.sendResponse(200, song)
     rooms[roomId].forEach((ws) => {
       try {
