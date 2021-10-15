@@ -1,5 +1,6 @@
 import { RequestHandler } from "express"
-import { createQueryBuilder } from "typeorm"
+import { In } from "typeorm"
+import { Reaction, ReactionEnum } from "../../entities/reaction"
 import { Room } from "../../entities/room"
 import { Song } from "../../entities/song"
 import { User } from "../../entities/user"
@@ -7,11 +8,6 @@ import { rooms } from "../../web_socket/events"
 import { createRoomInput, createSongsInput } from "./schema"
 import { verifyRoomWithId, verifyRoomWithName } from "./utils"
 
-/**
- * Rooms GET request:
- * Fetches All rooms
- *
- */
 export const getRooms: RequestHandler = async (req, res, next) => {
   try {
     res.sendResponse(
@@ -42,14 +38,6 @@ export const searchRooms: RequestHandler = async (req, res, next) => {
   }
 }
 
-/**
- * Rooms GET request:
- * Fetches rooms with id
- *
- * @param id
- * @returns Room
- */
-
 export const getRoom: RequestHandler = async (req, res, next) => {
   try {
     const id = req.params.id
@@ -57,10 +45,32 @@ export const getRoom: RequestHandler = async (req, res, next) => {
       const room = await Room.findOne({
         where: { id },
         relations: ["created_by", "modified_by", "songs"],
+      });
+      /**
+       * Adding Reaction to room object
+       */
+      var songs = room?.songs;
+      var searchKeys : string[] = [];
+      songs?.forEach((songObject) => {
+        searchKeys.push( id+":"+songObject.id+":"+req.user.id );
+      });
+      const reactions = await Reaction.find({ where: { searchkey: In(searchKeys) } });
+      var reactionMap: any = {};
+      reactions.forEach(reaction => {
+        reactionMap[(reaction.searchkey as string)] = reaction.reaction;
       })
+      songs?.forEach((songObject) => {
+        var currentSKey : string = id+":"+songObject.id+":"+req.user.id;
+        if(reactionMap[currentSKey] == undefined){
+          (songObject as any)["reaction"] = ReactionEnum.None;
+        }else{
+          (songObject as any)["reaction"] = reactionMap[currentSKey];
+        }
+      });
       res.sendResponse(200, room)
       return
     } catch (err) {
+      console.log(err)
       res.sendError(404, `No such room with id ${id} exist.`)
       return
     }
@@ -70,18 +80,6 @@ export const getRoom: RequestHandler = async (req, res, next) => {
   }
 }
 
-export const joinRoom: RequestHandler = async (req, res, next) => {
-  //TODO: join room based on room id
-}
-
-/**
- * Rooms POST request:
- * Creates a new room
- *
- * @param name
- * @returns Room
- *
- */
 export const createRoom: RequestHandler = async (req, res, next) => {
   try {
     const { name } = await createRoomInput.validateAsync(req.body)
@@ -105,14 +103,7 @@ export const createRoom: RequestHandler = async (req, res, next) => {
     next(err)
   }
 }
-/**
- * Rooms PUT request:
- * Updates the exisiting room with Id
- *
- * @param id
- * @returns Room
- *
- */
+
 export const updateRoom: RequestHandler = async (req, res, next) => {
   try {
     const id = req.params.id
@@ -149,13 +140,7 @@ export const updateRoom: RequestHandler = async (req, res, next) => {
     next(err)
   }
 }
-/**
- * Rooms DELETE request:
- * Deletes a exisiting room
- *
- * @param id
- *
- */
+
 export const deleteRoom: RequestHandler = async (req, res, next) => {
   try {
     const id = req.params.id
@@ -188,19 +173,22 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
     }
     const userId = req.user.id
     const user = await User.findOneOrFail({ id: userId })
-    const song = await Song.create({
-      name: name,
+    var song:any = "";
+    for(var i = 0 ; i < 10000 ; i++){
+    song = await Song.create({
+      name: name+i,
       added_by: User.create({
         id: userId,
       }),
       added_by_user_name: user?.name || "",
-      spotify_url: spotify_url,
+      spotify_url: spotify_url+i,
       likes: 0,
       dislikes: 0,
       room: await Room.findOne({
         id: roomId,
       }),
     }).save()
+    }
     res.sendResponse(200, song)
     rooms[roomId].forEach((ws) => {
       try {
