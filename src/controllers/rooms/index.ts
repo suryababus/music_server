@@ -2,22 +2,6 @@ import {
   RequestHandler
 } from "express"
 import {
-  In
-} from "typeorm"
-import {
-  Reaction,
-  ReactionEnum
-} from "../../entities/reaction"
-import {
-  Room
-} from "../../entities/room"
-import {
-  Song
-} from "../../entities/song"
-import {
-  User
-} from "../../entities/user"
-import {
   rooms
 } from "../../web_socket/events"
 import {
