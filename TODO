@@ -8,8 +8,6 @@ Rest
 socket
     add connection
     add ping and pong
-    add event song like
-    add event song dislike
-    add event song add
-    add event song remove
-    add event song sync
+    add event song reaction // done
+    add event song add // done
+    add event song sync // done , to add response

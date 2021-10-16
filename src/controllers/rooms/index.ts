@@ -3,7 +3,7 @@ import { createQueryBuilder } from "typeorm"
 import { Room } from "../../entities/room"
 import { Song } from "../../entities/song"
 import { User } from "../../entities/user"
-import { rooms } from "../../web_socket/events"
+import { roomsWS } from "../../web_socket/events"
 import { createRoomInput, createSongsInput } from "./schema"
 import { verifyRoomWithId, verifyRoomWithName } from "./utils"
 
@@ -202,7 +202,7 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
       }),
     }).save()
     res.sendResponse(200, song)
-    rooms[roomId].forEach((ws) => {
+    roomsWS[roomId].forEach((ws) => {
       try {
         ws?.send(
           JSON.stringify({
@@ -213,8 +213,8 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
       } catch (err) {
         console.log(err)
         if (ws?.CLOSED) {
-          const index = rooms[roomId].indexOf(ws)
-          rooms[roomId].splice(index, 1)
+          const index = roomsWS[roomId].indexOf(ws)
+          roomsWS[roomId].splice(index, 1)
         }
       }
     })
