@@ -10,6 +10,7 @@ import { updateRoom as updateRoomFull } from "./updateRoom"
 import { deleteRoom as deleteRoomFull } from "./deleteRoom"
 import { addSong } from "./addSongToRoom"
 import { sentAction } from "../../web_socket/actions/actions"
+import { actions } from "../../web_socket/actions/actionsEnum"
 
 export const getRooms: RequestHandler = async (req, res, next) => {
   try {
@@ -92,7 +93,6 @@ export const deleteRoom: RequestHandler = async (req, res, next) => {
 export const addSongToRoom: RequestHandler = async (req, res, next) => {
   try {
     const roomId = req.params.id
-    console.log(req.body)
     const data = await createSongsInput.validateAsync(req.body)
     if ((await verifyRoomWithId(roomId)) == false) {
       res.sendError(404, `No such room with roomId ${roomId} exist.`)
@@ -103,6 +103,7 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
     sentAction(roomId, actions.SONG_ADDED, song)
     return
   } catch (err) {
+    console.log(err)
     next(err)
   }
 }

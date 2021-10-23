@@ -22,7 +22,8 @@ export const addWebSocket = (app: Express): http.Server => {
         const token = msgObj.token
         let userId = ""
         if (token) {
-          userId = verifyToken(token)
+          const { id } = verifyToken(token)
+          userId = id
         } else {
           ws.send("token required")
           throw "Error2"
