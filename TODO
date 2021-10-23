@@ -1,13 +1,5 @@
 Rest
-    add song add - Completed
-    add song remove - Pending
-    add song like 
-    add song dislike
-    add create room
-    add delete room
+   add song - add unique check to the song
+   sort songs based on likes.
 socket
-    add connection
-    add ping and pong
-    add event song reaction // done
-    add event song add // done
-    add event song sync // done , to add response
+    

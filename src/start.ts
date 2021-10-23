@@ -30,10 +30,12 @@ const port = 4000
 app.use(bodyParser.json())
 app.use(cors())
 app.use(addCustomResponse)
+
+addRoutes(app)
+
 app.use(handleErrorMiddleware)
 
 // add all the routes
-addRoutes(app)
 const server = addWebSocket(app)
 
 server.listen(port, () => {

@@ -2,17 +2,18 @@ import { RequestHandler } from "express"
 import { roomsWS } from "../../web_socket/events"
 import { createRoomInput, createSongsInput } from "./schema"
 import { verifyRoomWithId, verifyRoomWithName } from "./utils"
-import { getRooms as getRoomsFull } from "./getRooms"
+import { getRooms as getAllRooms } from "./getRooms"
 import { searchRooms as searchRoomsFull } from "./searchRooms"
 import { getSpecificRoom } from "./getRoom"
-import { createRoom as createRoomFull } from "./createRoom"
+import { createRoom as createRoomHandler } from "./createRoom"
 import { updateRoom as updateRoomFull } from "./updateRoom"
 import { deleteRoom as deleteRoomFull } from "./deleteRoom"
 import { addSong } from "./addSongToRoom"
+import { sentAction } from "../../web_socket/events/actions"
 
 export const getRooms: RequestHandler = async (req, res, next) => {
   try {
-    res.sendResponse(200, getRoomsFull())
+    res.sendResponse(200, await getAllRooms())
   } catch (err) {
     next(err)
   }
@@ -23,35 +24,28 @@ export const searchRooms: RequestHandler = async (req, res, next) => {
     const name = req.query.key
     res.sendResponse(200, searchRoomsFull())
   } catch (err) {
-    res.sendError(500, `Internal Error`)
+    next(err)
   }
 }
 
 export const getRoom: RequestHandler = async (req, res, next) => {
   try {
     const id = req.params.id
-    try {
-      res.sendResponse(200, getSpecificRoom(id, req.user.id))
-      return
-    } catch (err) {
-      console.log(err)
-      res.sendError(404, `No such room with id ${id} exist.`)
-      return
-    }
+    res.sendResponse(200, await getSpecificRoom(id, req.user.id))
+    return
   } catch (err) {
-    console.log(err)
     next(err)
   }
 }
 
 export const createRoom: RequestHandler = async (req, res, next) => {
   try {
-    const { name } = await createRoomInput.validateAsync(req.body)
-    if ((await verifyRoomWithName(name)) == true) {
+    const data = await createRoomInput.validateAsync(req.body)
+    if ((await verifyRoomWithName(data.name)) == true) {
       res.sendError(409, `Already room with name ${name} exist.`)
       return
     }
-    res.sendResponse(200, createRoomFull(name, req.user.id))
+    res.sendResponse(200, await createRoomHandler(req.user.id, data))
     return
   } catch (err) {
     next(err)
@@ -98,29 +92,15 @@ export const deleteRoom: RequestHandler = async (req, res, next) => {
 export const addSongToRoom: RequestHandler = async (req, res, next) => {
   try {
     const roomId = req.params.id
-    const { name, spotify_url } = await createSongsInput.validateAsync(req.body)
+    console.log(req.body)
+    const data = await createSongsInput.validateAsync(req.body)
     if ((await verifyRoomWithId(roomId)) == false) {
       res.sendError(404, `No such room with roomId ${roomId} exist.`)
       return
     }
-    const song = addSong(req.user.id, name, spotify_url, roomId)
+    const song = await addSong(req.user.id, roomId, data)
     res.sendResponse(200, song)
-    roomsWS[roomId].forEach((ws) => {
-      try {
-        ws?.send(
-          JSON.stringify({
-            action: "song_added",
-            data: song,
-          })
-        )
-      } catch (err) {
-        console.log(err)
-        if (ws?.CLOSED) {
-          const index = roomsWS[roomId].indexOf(ws)
-          roomsWS[roomId].splice(index, 1)
-        }
-      }
-    })
+    sentAction(roomId, "song_added", song)
     return
   } catch (err) {
     next(err)

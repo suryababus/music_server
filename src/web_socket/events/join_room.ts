@@ -8,6 +8,12 @@ export const handler = (userId: string, message: any, ws: WebSocket) => {
   if (!roomsWS[joinRoomId]) {
     roomsWS[joinRoomId] = []
   }
+  const userWS = userRoomWS[userId]
+  if (userWS) {
+    roomsWS[userWS.roomId] = roomsWS[userWS.roomId].filter(
+      (ws) => ws != userWS.ws
+    ) as [WebSocket?]
+  }
   roomsWS[joinRoomId].push(ws)
   userRoomWS[userId] = {
     roomId: joinRoomId,

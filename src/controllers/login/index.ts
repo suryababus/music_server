@@ -10,9 +10,11 @@ export const login: RequestHandler = async (req, res, next) => {
     const { token } = await LoginInput.validateAsync(req.body)
     spotify.setAccessToken(token)
     try {
+      const resp = await spotify.getMe()
+      console.log(resp)
       const {
         body: { display_name, email, id },
-      } = await spotify.getMe()
+      } = resp
       try {
         const user = await User.findOneOrFail(id)
         const token = jwt.sign(user.id, "heyiamsecret")
