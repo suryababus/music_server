@@ -1,6 +1,6 @@
-import { roomsWS } from "."
+import { roomsWS } from "../events"
 
-export const sentAction = (roomId: string, action: string, data?: any) => {
+export const sentAction = (roomId: string, action: actions, data?: any) => {
   roomsWS[roomId].forEach((ws) => {
     try {
       ws?.send(

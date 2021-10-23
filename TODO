@@ -1,5 +1,6 @@
 Rest
    add song - add unique check to the song
    sort songs based on likes.
+   socket send action on reaction
 socket
     

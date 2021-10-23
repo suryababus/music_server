@@ -9,7 +9,7 @@ import { createRoom as createRoomHandler } from "./createRoom"
 import { updateRoom as updateRoomFull } from "./updateRoom"
 import { deleteRoom as deleteRoomFull } from "./deleteRoom"
 import { addSong } from "./addSongToRoom"
-import { sentAction } from "../../web_socket/events/actions"
+import { sentAction } from "../../web_socket/actions/actions"
 
 export const getRooms: RequestHandler = async (req, res, next) => {
   try {
@@ -100,7 +100,7 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
     }
     const song = await addSong(req.user.id, roomId, data)
     res.sendResponse(200, song)
-    sentAction(roomId, "song_added", song)
+    sentAction(roomId, actions.SONG_ADDED, song)
     return
   } catch (err) {
     next(err)
