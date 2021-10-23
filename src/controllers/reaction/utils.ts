@@ -1,11 +1,14 @@
 import { Reaction, ReactionEnum } from "../../entities/reaction"
 import { Song } from "../../entities/song"
+import { sentAction } from "../../web_socket/actions/actions"
+import { actions } from "../../web_socket/actions/actionsEnum"
 
 export async function createReaction(
   roomId: any,
   songId: any,
   userId: any,
-  reaction: ReactionEnum
+  reaction: ReactionEnum,
+  userName : any
 ) {
   const createReaction = await Reaction.create({
     searchkey: roomId + ":" + songId + ":" + userId,
@@ -19,6 +22,16 @@ export async function createReaction(
   } else if (reaction === ReactionEnum.Dislike) {
     updateDisLike(songId, songData[0].dislikes.toString(), "addition")
   }
+  const songDataAfterUpdate = await Song.find({
+    id: songId,
+  })
+
+  var reactionsObject = {};
+  (reactionsObject as any)["likes"] = songDataAfterUpdate[0].likes;
+  (reactionsObject as any)["dislikes"] = songDataAfterUpdate[0].dislikes;
+  (reactionsObject as any)["name"] = userName;
+  sentAction(roomId, actions.REACTION, reactionsObject)
+
   return createReaction
 }
 export async function updateReaction(
@@ -26,7 +39,8 @@ export async function updateReaction(
   songId: any,
   userId: any,
   existingReaction: ReactionEnum,
-  reaction: ReactionEnum
+  reaction: ReactionEnum,
+  userName : any
 ) {
   const updateReaction = await Reaction.update(
     {
@@ -52,6 +66,15 @@ export async function updateReaction(
   } else if (reaction == ReactionEnum.Like) {
     updateLike(songId, songData[0].likes.toString(), "addition")
   }
+  const songDataAfterUpdate = await Song.find({
+    id: songId,
+  })
+  var reactionsObject = {};
+  (reactionsObject as any)["likes"] = songDataAfterUpdate[0].likes;
+  (reactionsObject as any)["dislikes"] = songDataAfterUpdate[0].dislikes;
+  (reactionsObject as any)["name"] = userName;
+  sentAction(roomId, actions.REACTION, reactionsObject)
+
   return updateReaction
 }
 async function updateLike(songId: any, currentLike: string, operation: string) {

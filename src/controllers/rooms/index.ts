@@ -1,7 +1,7 @@
 import { RequestHandler } from "express"
 import { roomsWS } from "../../web_socket/events"
 import { createRoomInput, createSongsInput } from "./schema"
-import { verifyRoomWithId, verifyRoomWithName } from "./utils"
+import { isSongExistsInRoom, verifyRoomWithId, verifyRoomWithName } from "./utils"
 import { getRooms as getAllRooms } from "./getRooms"
 import { searchRooms as searchRoomsFull } from "./searchRooms"
 import { getSpecificRoom } from "./getRoom"
@@ -96,6 +96,12 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
     const data = await createSongsInput.validateAsync(req.body)
     if ((await verifyRoomWithId(roomId)) == false) {
       res.sendError(404, `No such room with roomId ${roomId} exist.`)
+      return
+    }
+    const { spotify_uri } = data;
+    console.log(spotify_uri)
+    if ((await isSongExistsInRoom(spotify_uri))) {
+      res.sendError(404, `Song already added in Room - ${roomId} .`)
       return
     }
     const song = await addSong(req.user.id, roomId, data)

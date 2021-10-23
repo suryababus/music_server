@@ -35,5 +35,8 @@ export async function getSpecificRoom(id: any, user_Id: any) {
       ;(songObject as any)["reaction"] = reactionMap[currentSKey]
     }
   })
+  songs?.sort((a, b) => {
+    return a.likes > b.likes ? -1 : 1;
+  });
   return room
 }
