@@ -11,13 +11,16 @@ export const login: RequestHandler = async (req, res, next) => {
     spotify.setAccessToken(token)
     try {
       const resp = await spotify.getMe()
-      console.log(resp)
       const {
         body: { display_name, email, id },
       } = resp
       try {
         const user = await User.findOneOrFail(id)
-        const token = jwt.sign(user.id, "heyiamsecret")
+        const userDetails = {
+          displayName: display_name,
+          id: user.id,
+        }
+        const token = jwt.sign(userDetails, "heyiamsecret")
         res.sendResponse(200, {
           token,
         })
@@ -28,7 +31,11 @@ export const login: RequestHandler = async (req, res, next) => {
           email,
           id,
         }).save()
-        const token = jwt.sign(user.id, "heyiamsecret")
+        const userDetails = {
+          displayName: display_name,
+          id,
+        }
+        const token = jwt.sign(userDetails, "heyiamsecret")
         res.sendResponse(200, {
           token,
           newUser: true,
