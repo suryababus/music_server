@@ -5,6 +5,7 @@ import { addRoutes } from "./routes"
 import { addCustomResponse } from "./middlewares/addCustomResponse"
 import { handleErrorMiddleware } from "./middlewares/handleErrorMiddleware"
 import { addWebSocket } from "./web_socket"
+import { startSchedularForAllRooms } from "./helper/schedular"
 
 process.on("uncaughtException", (err) => {
   console.log(err)
@@ -37,7 +38,7 @@ app.use(handleErrorMiddleware)
 
 // add all the routes
 const server = addWebSocket(app)
-
+startSchedularForAllRooms()
 server.listen(port, () => {
   console.log("app running at port:", port)
 })

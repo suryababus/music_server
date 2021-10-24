@@ -1,8 +1,6 @@
 Ahin
-   add song - add unique check to the song           - Completed
-   sort songs based on likes.                         - Completed
-   socket send action on reaction                     - Completed
-   change sportify url to sportify uri                - Completed
+   // sort songs using queryBuilder based on likes
+   // code review my changes
 Surya
    schedular
     

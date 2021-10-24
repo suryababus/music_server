@@ -1,6 +1,6 @@
 import { Reaction, ReactionEnum } from "../../entities/reaction"
 import { Song } from "../../entities/song"
-import { sentAction } from "../../web_socket/actions/actions"
+import { publishAction } from "../../web_socket/actions/actions"
 import { actions } from "../../web_socket/actions/actionsEnum"
 
 export async function createReaction(
@@ -8,7 +8,7 @@ export async function createReaction(
   songId: any,
   userId: any,
   reaction: ReactionEnum,
-  userName : any
+  userName: any
 ) {
   const createReaction = await Reaction.create({
     searchkey: roomId + ":" + songId + ":" + userId,
@@ -26,11 +26,11 @@ export async function createReaction(
     id: songId,
   })
 
-  var reactionsObject = {};
-  (reactionsObject as any)["likes"] = songDataAfterUpdate[0].likes;
-  (reactionsObject as any)["dislikes"] = songDataAfterUpdate[0].dislikes;
-  (reactionsObject as any)["name"] = userName;
-  sentAction(roomId, actions.REACTION, reactionsObject)
+  var reactionsObject = {}
+  ;(reactionsObject as any)["likes"] = songDataAfterUpdate[0].likes
+  ;(reactionsObject as any)["dislikes"] = songDataAfterUpdate[0].dislikes
+  ;(reactionsObject as any)["name"] = userName
+  publishAction(roomId, actions.REACTION, reactionsObject)
 
   return createReaction
 }
@@ -40,7 +40,7 @@ export async function updateReaction(
   userId: any,
   existingReaction: ReactionEnum,
   reaction: ReactionEnum,
-  userName : any
+  userName: any
 ) {
   const updateReaction = await Reaction.update(
     {
@@ -69,11 +69,11 @@ export async function updateReaction(
   const songDataAfterUpdate = await Song.find({
     id: songId,
   })
-  var reactionsObject = {};
-  (reactionsObject as any)["likes"] = songDataAfterUpdate[0].likes;
-  (reactionsObject as any)["dislikes"] = songDataAfterUpdate[0].dislikes;
-  (reactionsObject as any)["name"] = userName;
-  sentAction(roomId, actions.REACTION, reactionsObject)
+  var reactionsObject = {}
+  ;(reactionsObject as any)["likes"] = songDataAfterUpdate[0].likes
+  ;(reactionsObject as any)["dislikes"] = songDataAfterUpdate[0].dislikes
+  ;(reactionsObject as any)["name"] = userName
+  publishAction(roomId, actions.REACTION, reactionsObject)
 
   return updateReaction
 }

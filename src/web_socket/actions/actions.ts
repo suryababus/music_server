@@ -1,7 +1,7 @@
 import { roomsWS } from "../events"
 import { actions } from "./actionsEnum"
 
-export const sentAction = (roomId: string, action: actions, data?: any) => {
+export const publishAction = (roomId: string, action: actions, data?: any) => {
   console.log(roomId, roomsWS[roomId], action)
   if (!roomsWS[roomId]) return
   roomsWS[roomId].forEach((ws) => {
@@ -14,10 +14,23 @@ export const sentAction = (roomId: string, action: actions, data?: any) => {
       )
     } catch (err) {
       console.log(err)
-      // if (ws?.CLOSED) {
-      //   const index = roomsWS[roomId].indexOf(ws)
-      //   roomsWS[roomId].splice(index, 1)
-      // }
     }
   })
+}
+
+export const sentActionForUser = (
+  ws: WebSocket,
+  action: actions,
+  data?: any
+) => {
+  try {
+    ws?.send(
+      JSON.stringify({
+        action: action,
+        data: data,
+      })
+    )
+  } catch (err) {
+    console.log(err)
+  }
 }

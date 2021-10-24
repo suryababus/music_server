@@ -1,7 +1,11 @@
 import { RequestHandler } from "express"
 import { roomsWS } from "../../web_socket/events"
 import { createRoomInput, createSongsInput } from "./schema"
-import { isSongExistsInRoom, verifyRoomWithId, verifyRoomWithName } from "./utils"
+import {
+  isSongExistsInRoom,
+  verifyRoomWithId,
+  verifyRoomWithName,
+} from "./utils"
 import { getRooms as getAllRooms } from "./getRooms"
 import { searchRooms as searchRoomsFull } from "./searchRooms"
 import { getSpecificRoom } from "./getRoom"
@@ -9,8 +13,9 @@ import { createRoom as createRoomHandler } from "./createRoom"
 import { updateRoom as updateRoomFull } from "./updateRoom"
 import { deleteRoom as deleteRoomFull } from "./deleteRoom"
 import { addSong } from "./addSongToRoom"
-import { sentAction } from "../../web_socket/actions/actions"
+import { publishAction } from "../../web_socket/actions/actions"
 import { actions } from "../../web_socket/actions/actionsEnum"
+import { songAddedToRoom } from "../../helper/schedular"
 
 export const getRooms: RequestHandler = async (req, res, next) => {
   try {
@@ -98,15 +103,15 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
       res.sendError(404, `No such room with roomId ${roomId} exist.`)
       return
     }
-    const { spotify_uri } = data;
-    console.log(spotify_uri)
-    if ((await isSongExistsInRoom(spotify_uri))) {
+    const { spotify_uri } = data
+    if (await isSongExistsInRoom(spotify_uri)) {
       res.sendError(404, `Song already added in Room - ${roomId} .`)
       return
     }
     const song = await addSong(req.user.id, roomId, data)
+    songAddedToRoom(roomId)
     res.sendResponse(200, song)
-    sentAction(roomId, actions.SONG_ADDED, song)
+    publishAction(roomId, actions.SONG_ADDED, song)
     return
   } catch (err) {
     console.log(err)
