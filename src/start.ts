@@ -18,27 +18,29 @@ const connectToDB = async () => {
   try {
     await createConnection()
     console.log("DB Connected")
+    startSchedularForAllRooms()
   } catch (error) {
     console.log(error)
     throw new Error("DB connection failed")
   }
 }
-connectToDB()
+const startApp = async () => {
+  await connectToDB()
+  const app = express()
+  const port = 4000
 
-const app = express()
-const port = 4000
+  app.use(bodyParser.json())
+  app.use(cors())
+  app.use(addCustomResponse)
 
-app.use(bodyParser.json())
-app.use(cors())
-app.use(addCustomResponse)
+  addRoutes(app)
 
-addRoutes(app)
+  app.use(handleErrorMiddleware)
 
-app.use(handleErrorMiddleware)
-
-// add all the routes
-const server = addWebSocket(app)
-startSchedularForAllRooms()
-server.listen(port, () => {
-  console.log("app running at port:", port)
-})
+  // add all the routes
+  const server = addWebSocket(app)
+  server.listen(port, () => {
+    console.log("app running at port:", port)
+  })
+}
+startApp()

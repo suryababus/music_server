@@ -18,9 +18,19 @@ export const startSongPlayer = async (roomId: string) => {
     const endMillis =
       startedMillis + parseInt(currentSong.duration_ms as string)
     currentPlayingSongs[roomId] = {
-      songId: currentSong,
+      currentSong,
       startedMillis,
     }
+    const songs = await Song.find({
+      where: {
+        room: roomId,
+      },
+      order: {
+        likes: "DESC",
+      },
+      take: 50,
+    })
+    publishAction(roomId, actions.SYNC, songs)
     publishAction(roomId, actions.PLAY_SONG, currentPlayingSongs[roomId])
     const job = schedule.scheduleJob(roomId, new Date(endMillis), async () => {
       await removeSong(currentSong.id as string)
@@ -44,7 +54,7 @@ const removeSong = async (currentSongId: string): Promise<boolean> => {
 
 const popularSong = async (roomId: string): Promise<Song | null> => {
   try {
-    return Song.findOneOrFail({
+    const song = await Song.findOneOrFail({
       where: {
         room: roomId,
       },
@@ -52,10 +62,10 @@ const popularSong = async (roomId: string): Promise<Song | null> => {
         likes: "DESC",
       },
     })
+    return song
   } catch (err) {
-    console.log("err in popularSong", err)
+    return null
   }
-  return null
 }
 
 export const startSchedularForAllRooms = async () => {
@@ -66,6 +76,7 @@ export const startSchedularForAllRooms = async () => {
 }
 
 export const songAddedToRoom = (roomId: string) => {
+  console.log(currentPlayingSongs[roomId])
   if (!currentPlayingSongs[roomId]) {
     startSongPlayer(roomId)
   }

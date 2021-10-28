@@ -1,8 +1,9 @@
 import { roomsWS } from "../events"
 import { actions } from "./actionsEnum"
+import * as WebSocket from "ws"
 
 export const publishAction = (roomId: string, action: actions, data?: any) => {
-  console.log(roomId, roomsWS[roomId], action)
+  console.log(roomId, roomsWS[roomId], action, data)
   if (!roomsWS[roomId]) return
   roomsWS[roomId].forEach((ws) => {
     try {
