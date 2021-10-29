@@ -1,4 +1,5 @@
 import { Song } from "../../entities/song"
+import * as WebSocket from "ws"
 import { userRoomWS } from "./index"
 import { currentPlayingSongs } from "../../helper/schedular"
 import { actions } from "../actions/actionsEnum"
