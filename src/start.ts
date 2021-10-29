@@ -32,7 +32,6 @@ const startApp = async () => {
 
   app.use(bodyParser.json())
   app.use(cors())
-  app.use(csrf({ cookie: true }))
   app.use(addCustomResponse)
 
   addRoutes(app)
