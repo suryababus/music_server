@@ -30,5 +30,8 @@
     "ts-node-dev": "^1.1.8",
     "typeorm": "^0.2.37",
     "ws": "^8.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.6"
   }
 }
