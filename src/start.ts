@@ -1,5 +1,5 @@
-import express, { ErrorRequestHandler, NextFunction, Response } from "express"
 import "reflect-metadata"
+import express, { ErrorRequestHandler, NextFunction, Response } from "express"
 import { createConnection } from "typeorm"
 import { addRoutes } from "./routes"
 import { addCustomResponse } from "./middlewares/addCustomResponse"
