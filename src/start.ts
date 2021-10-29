@@ -6,6 +6,7 @@ import { addCustomResponse } from "./middlewares/addCustomResponse"
 import { handleErrorMiddleware } from "./middlewares/handleErrorMiddleware"
 import { addWebSocket } from "./web_socket"
 import { startSchedularForAllRooms } from "./helper/schedular"
+import csrf from "csurf"
 
 process.on("uncaughtException", (err) => {
   console.log(err)
@@ -17,7 +18,7 @@ const cors = require("cors")
 const connectToDB = async () => {
   try {
     await createConnection()
-    console.log("DB Connected")
+    console.log("DB Connected...")
     startSchedularForAllRooms()
   } catch (error) {
     console.log(error)
@@ -31,6 +32,7 @@ const startApp = async () => {
 
   app.use(bodyParser.json())
   app.use(cors())
+  app.use(csrf({ cookie: true }))
   app.use(addCustomResponse)
 
   addRoutes(app)
