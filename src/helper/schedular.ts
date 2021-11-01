@@ -12,6 +12,9 @@ export const startSongPlayer = async (roomId: string) => {
     if (!currentSong) {
       console.log("no songs in room:", roomId)
       currentPlayingSongs[roomId] = null
+      publishAction(roomId, actions.SYNC, {
+        songs: [],
+      })
       return
     }
     const startedMillis = new Date().getTime() + 2000
@@ -30,7 +33,9 @@ export const startSongPlayer = async (roomId: string) => {
       },
       take: 50,
     })
-    publishAction(roomId, actions.SYNC, songs)
+    publishAction(roomId, actions.SYNC, {
+      songs,
+    })
     publishAction(roomId, actions.PLAY_SONG, currentPlayingSongs[roomId])
     const job = schedule.scheduleJob(roomId, new Date(endMillis), async () => {
       await removeSong(currentSong.id as string)

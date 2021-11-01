@@ -6,7 +6,6 @@ import { addCustomResponse } from "./middlewares/addCustomResponse"
 import { handleErrorMiddleware } from "./middlewares/handleErrorMiddleware"
 import { addWebSocket } from "./web_socket"
 import { startSchedularForAllRooms } from "./helper/schedular"
-import csrf from "csurf"
 
 process.on("uncaughtException", (err) => {
   console.log(err)

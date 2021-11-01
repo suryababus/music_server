@@ -3,4 +3,5 @@ export enum actions {
   REACTION = "reaction",
   PLAY_SONG = "play_song",
   SYNC = "sync",
+  PING = "ping",
 }

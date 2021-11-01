@@ -27,5 +27,5 @@ export const handler = (userId: string, message: any, ws: WebSocket) => {
   let currentPlayingSong = currentPlayingSongs[joinRoomId]
   if (!currentPlayingSong) return
   currentPlayingSong["currentMillis"] = new Date().getTime()
-  sentActionForUser(ws, actions.PLAY_SONG, currentPlayingSongs[joinRoomId])
+  sentActionForUser(ws, actions.PLAY_SONG, currentPlayingSong)
 }

@@ -20,6 +20,9 @@ export const handler = async (userId: string, message: any, ws: WebSocket) => {
   })
   sentActionForUser(ws, actions.SYNC, {
     songs,
-    currentPlayingSong: currentPlayingSongs[roomId],
   })
+  let currentPlayingSong = currentPlayingSongs[roomId]
+  if (!currentPlayingSong) return
+  currentPlayingSong["currentMillis"] = new Date().getTime()
+  sentActionForUser(ws, actions.PLAY_SONG, currentPlayingSong)
 }
