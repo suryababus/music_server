@@ -5,9 +5,10 @@ import { addRoutes } from "./routes"
 import { addCustomResponse } from "./middlewares/addCustomResponse"
 import { handleErrorMiddleware } from "./middlewares/handleErrorMiddleware"
 import { addWebSocket } from "./web_socket"
+import { log } from "./helper/logger/index"
 
 process.on("uncaughtException", (err) => {
-  console.log(err)
+  log(err);
 })
 
 const bodyParser = require("body-parser")
@@ -16,9 +17,9 @@ const cors = require("cors")
 const connectToDB = async () => {
   try {
     await createConnection()
-    console.log("DB Connected")
+    log("DB Connected");
   } catch (error) {
-    console.log(error)
+    log(error);
     throw new Error("DB connection failed")
   }
 }
@@ -39,5 +40,5 @@ app.use(handleErrorMiddleware)
 const server = addWebSocket(app)
 
 server.listen(port, () => {
-  console.log("app running at port:", port)
+  log("app running at port : "+port);
 })

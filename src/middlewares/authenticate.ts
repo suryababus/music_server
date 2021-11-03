@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import jwt from "jsonwebtoken"
+import { log } from "../helper/logger/index"
 
 export const verifyToken = (token: string) => {
   const userDetails = jwt.verify(token, "heyiamsecret")
@@ -18,7 +19,7 @@ export const authenticate = (req: Request, res: Response, next: any) => {
       }
       next()
     } catch (err) {
-      console.log(err)
+      log(err)
       res.sendError(401, "invalid token")
     }
   } else {

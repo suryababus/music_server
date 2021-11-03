@@ -1,16 +1,9 @@
 import { RequestHandler } from "express"
-import { roomsWS } from "../../web_socket/events"
 import { createRoomInput, createSongsInput } from "./schema"
-import { isSongExistsInRoom, verifyRoomWithId, verifyRoomWithName } from "./utils"
-import { getRooms as getAllRooms } from "./getRooms"
-import { searchRooms as searchRoomsFull } from "./searchRooms"
-import { getSpecificRoom } from "./getRoom"
-import { createRoom as createRoomHandler } from "./createRoom"
-import { updateRoom as updateRoomFull } from "./updateRoom"
-import { deleteRoom as deleteRoomFull } from "./deleteRoom"
-import { addSong } from "./addSongToRoom"
+import { deleteRoom as deleteRoomHandler, updateRoom as updateRoomHandler, createRoom as createRoomHandler, getSpecificRoom, addSong, isSongExistsInRoom, verifyRoomWithId, verifyRoomWithName, getRooms as getAllRooms, searchRooms as searchRoomsFull} from "./utils"
 import { sentAction } from "../../web_socket/actions/actions"
 import { actions } from "../../web_socket/actions/actionsEnum"
+import { log } from "../../helper/logger/index"
 
 export const getRooms: RequestHandler = async (req, res, next) => {
   try {
@@ -64,7 +57,7 @@ export const updateRoom: RequestHandler = async (req, res, next) => {
       }
       res.sendResponse(
         200,
-        updateRoomFull(id, name, req.user.id),
+        updateRoomHandler(id, name, req.user.id),
         "Room details updated."
       )
       return
@@ -84,7 +77,7 @@ export const deleteRoom: RequestHandler = async (req, res, next) => {
       res.sendError(404, `No such room with id ${id} exist.`)
       return
     }
-    res.sendResponse(200, deleteRoomFull(id), "Room Deleted.")
+    res.sendResponse(200, deleteRoomHandler(id), "Room Deleted.")
     return
   } catch (err) {
     next(err)
@@ -99,7 +92,6 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
       return
     }
     const { spotify_uri } = data;
-    console.log(spotify_uri)
     if ((await isSongExistsInRoom(spotify_uri))) {
       res.sendError(404, `Song already added in Room - ${roomId} .`)
       return
@@ -109,7 +101,7 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
     sentAction(roomId, actions.SONG_ADDED, song)
     return
   } catch (err) {
-    console.log(err)
+    log(err);
     next(err)
   }
 }

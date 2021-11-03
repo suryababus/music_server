@@ -2,11 +2,12 @@ import { RequestHandler } from "express"
 import { Reaction, ReactionEnum } from "../../entities/reaction"
 import { createReaction, updateReaction } from "./utils"
 import { validateAction } from "./schema"
+import { log } from "../../helper/logger/index"
 
 export const addReaction: RequestHandler = async (req, res, next) => {
   try {
-    const userId = req.user.id
-    console.log(req.query)
+    const userId = req.user.id;
+    log(req.query);
     const { action } = await validateAction.validateAsync(req.query)
     const roomId = req.params.room_id
     const songId = req.params.song_id

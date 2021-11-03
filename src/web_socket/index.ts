@@ -3,6 +3,7 @@ import * as http from "http"
 import * as WebSocket from "ws"
 import { verifyToken } from "../middlewares/authenticate"
 import { handleEvents } from "./events"
+import { log } from "../helper/logger/index"
 
 //web socket
 export const addWebSocket = (app: Express): http.Server => {
@@ -41,7 +42,7 @@ export const addWebSocket = (app: Express): http.Server => {
         // })
       } catch (err) {
         ws.send(`error: ${err}`)
-        console.log(err)
+        log(err);
         ws.close()
       }
     })
