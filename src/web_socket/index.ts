@@ -2,6 +2,8 @@ import { Express } from "express"
 import * as http from "http"
 import * as WebSocket from "ws"
 import { verifyToken } from "../middlewares/authenticate"
+import { sentActionForUser } from "./actions/actions"
+import { actions } from "./actions/actionsEnum"
 import { handleEvents } from "./events"
 import { log } from "../helper/logger/index"
 
@@ -27,19 +29,9 @@ export const addWebSocket = (app: Express): http.Server => {
           userId = id
         } else {
           ws.send("token required")
-          throw "Error2"
+          throw "token required"
         }
         handleEvents(userId, msgObj, ws)
-        // Message received
-        // switch radio
-        // like song
-        // dislike song
-        // add song
-        // sync songs
-        // Text Message
-        // clients.forEach((ws) => {
-        //   ws.send(`Message: ${message}`)
-        // })
       } catch (err) {
         ws.send(`error: ${err}`)
         log(err);
@@ -52,9 +44,10 @@ export const addWebSocket = (app: Express): http.Server => {
       request.headers.authorization
       ws.close()
     })
-
-    //send immediatly a feedback to the incoming connection
-    ws.send("Joined")
+    ws.on("ping", (message: any) => {
+      console.log("client pinged")
+      sentActionForUser(ws, actions.PING, "ok")
+    })
     clients.push(ws)
   })
   return server

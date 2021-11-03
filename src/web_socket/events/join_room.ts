@@ -1,5 +1,8 @@
 import * as WebSocket from "ws"
 import { roomsWS, userRoomWS } from "."
+import { currentPlayingSongs } from "../../helper/schedular"
+import { sentActionForUser } from "../actions/actions"
+import { actions } from "../actions/actionsEnum"
 import { log } from "../../helper/logger/index"
 
 export const event = "join_room"
@@ -20,5 +23,10 @@ export const handler = (userId: string, message: any, ws: WebSocket) => {
     roomId: joinRoomId,
     ws: ws,
   }
-  ws.send("joined")
+  // if (!currentPlayingSongs[joinRoomId]) return
+  log("sent play song")
+  let currentPlayingSong = currentPlayingSongs[joinRoomId]
+  if (!currentPlayingSong) return
+  currentPlayingSong["currentMillis"] = new Date().getTime()
+  sentActionForUser(ws, actions.PLAY_SONG, currentPlayingSong)
 }

@@ -1,9 +1,10 @@
 import { RequestHandler } from "express"
 import { createRoomInput, createSongsInput } from "./schema"
 import { deleteRoom as deleteRoomHandler, updateRoom as updateRoomHandler, createRoom as createRoomHandler, getSpecificRoom, addSong, isSongExistsInRoom, verifyRoomWithId, verifyRoomWithName, getRooms as getAllRooms, searchRooms as searchRoomsFull} from "./utils"
-import { sentAction } from "../../web_socket/actions/actions"
-import { actions } from "../../web_socket/actions/actionsEnum"
 import { log } from "../../helper/logger/index"
+import { publishAction } from "../../web_socket/actions/actions"
+import { actions } from "../../web_socket/actions/actionsEnum"
+import { songAddedToRoom } from "../../helper/schedular"
 
 export const getRooms: RequestHandler = async (req, res, next) => {
   try {
@@ -91,14 +92,15 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
       res.sendError(404, `No such room with roomId ${roomId} exist.`)
       return
     }
-    const { spotify_uri } = data;
-    if ((await isSongExistsInRoom(spotify_uri))) {
+    const { spotify_uri } = data
+    if (await isSongExistsInRoom(spotify_uri)) {
       res.sendError(404, `Song already added in Room - ${roomId} .`)
       return
     }
     const song = await addSong(req.user.id, roomId, data)
+    songAddedToRoom(roomId)
     res.sendResponse(200, song)
-    sentAction(roomId, actions.SONG_ADDED, song)
+    publishAction(roomId, actions.SONG_ADDED, song)
     return
   } catch (err) {
     log(err);
