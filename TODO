@@ -1,9 +1,8 @@
 Ahin
    // sort songs using queryBuilder based on likes
-   // code review my changes
+   // code review my changes - Can review this once PR is raised, Right now i wont know what has to be reviewed and what are the places to look into
+   logging - Completed
+   postgres aws
+   code refactoring  - Completed
 Surya
    schedular
-    
-logging
-postgres aws
-code refactoring
