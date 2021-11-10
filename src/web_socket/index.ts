@@ -18,7 +18,7 @@ export const addWebSocket = (app: Express): http.Server => {
 
   wss.on("connection", (ws: WebSocket) => {
     //connection is up
-
+    sentActionForUser(ws, actions.CONNECTED, "ok")
     ws.on("message", (message: any) => {
       try {
         const msgObj = JSON.parse(message.toString())
@@ -34,7 +34,7 @@ export const addWebSocket = (app: Express): http.Server => {
         handleEvents(userId, msgObj, ws)
       } catch (err) {
         ws.send(`error: ${err}`)
-        log(err);
+        log(err)
         ws.close()
       }
     })
