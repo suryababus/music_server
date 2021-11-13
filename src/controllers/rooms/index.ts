@@ -1,25 +1,14 @@
 import { RequestHandler } from "express"
-import { createQueryBuilder } from "typeorm"
-import { Room } from "../../entities/room"
-import { Song } from "../../entities/song"
-import { User } from "../../entities/user"
 import { createRoomInput, createSongsInput } from "./schema"
-import { verifyRoomWithId, verifyRoomWithName } from "./utils"
+import { deleteRoom as deleteRoomHandler, updateRoom as updateRoomHandler, createRoom as createRoomHandler, getSpecificRoom, addSong, isSongExistsInRoom, verifyRoomWithId, verifyRoomWithName, getRooms as getAllRooms, searchRooms as searchRoomsFull} from "./utils"
+import { log } from "../../helper/logger/index"
+import { publishAction } from "../../web_socket/actions/actions"
+import { actions } from "../../web_socket/actions/actionsEnum"
+import { songAddedToRoom } from "../../helper/schedular"
 
-/**
- * Rooms GET request:
- * Fetches All rooms
- *
- */
 export const getRooms: RequestHandler = async (req, res, next) => {
   try {
-    res.sendResponse(
-      200,
-      await Room.find({
-        relations: ["created_by", "modified_by"],
-        take: 50,
-      })
-    )
+    res.sendResponse(200, await getAllRooms())
   } catch (err) {
     next(err)
   }
@@ -28,116 +17,50 @@ export const getRooms: RequestHandler = async (req, res, next) => {
 export const searchRooms: RequestHandler = async (req, res, next) => {
   try {
     const name = req.query.key
-    const roomDetails = await Room.createQueryBuilder()
-      .select()
-      .where("name ILIKE :name", {
-        name: `%${name}%`,
-      })
-      .limit(50)
-      .getMany()
-    res.sendResponse(200, roomDetails)
-  } catch (err) {
-    res.sendError(500, `Internal Error`)
-  }
-}
-
-/**
- * Rooms GET request:
- * Fetches rooms with id
- *
- * @param id
- * @returns Room
- */
-
-export const getRoom: RequestHandler = async (req, res, next) => {
-  try {
-    const id = req.params.id
-    try {
-      const room = await Room.findOne({
-        where: { id },
-        relations: ["created_by", "modified_by", "songs"],
-      })
-      res.sendResponse(200, room)
-      return
-    } catch (err) {
-      res.sendError(404, `No such room with id ${id} exist.`)
-      return
-    }
+    res.sendResponse(200, searchRoomsFull())
   } catch (err) {
     next(err)
   }
 }
 
-export const joinRoom: RequestHandler = async (req, res, next) => {
-  //TODO: join room based on room id
-}
-
-/**
- * Rooms POST request:
- * Creates a new room
- *
- * @param name
- * @returns Room
- *
- */
-export const createRoom: RequestHandler = async (req, res, next) => {
+export const getRoom: RequestHandler = async (req, res, next) => {
   try {
-    const { name } = await createRoomInput.validateAsync(req.body)
-    if ((await verifyRoomWithName(name)) == true) {
-      res.sendError(409, `Already room with name ${name} exist.`)
-      return
-    }
-    const room = await Room.create({
-      name,
-      created_by: User.create({
-        id: req.user.id,
-      }),
-      modified_by: User.create({
-        id: req.user.id,
-      }),
-    }).save()
-
-    res.sendResponse(200, room)
+    const id = req.params.id
+    res.sendResponse(200, await getSpecificRoom(id, req.user.id))
     return
   } catch (err) {
     next(err)
   }
 }
-/**
- * Rooms PUT request:
- * Updates the exisiting room with Id
- *
- * @param id
- * @returns Room
- *
- */
+
+export const createRoom: RequestHandler = async (req, res, next) => {
+  try {
+    const data = await createRoomInput.validateAsync(req.body)
+    if ((await verifyRoomWithName(data.name)) == true) {
+      res.sendError(409, `Already room with name ${name} exist.`)
+      return
+    }
+    res.sendResponse(200, await createRoomHandler(req.user.id, data))
+    return
+  } catch (err) {
+    next(err)
+  }
+}
+
 export const updateRoom: RequestHandler = async (req, res, next) => {
   try {
     const id = req.params.id
     const { name } = await createRoomInput.validateAsync(req.body)
     try {
-      /**
-       * Checking whether the room exists or not
-       */
       if ((await verifyRoomWithId(id)) == false) {
         res.sendError(404, `No room with id ${id} found.`)
         return
       }
-      /**
-       * Updating Room Details
-       */
-      const updatedRoom = await Room.update(
-        {
-          id,
-        },
-        {
-          name: name,
-          modified_by: User.create({
-            id: req.user.id,
-          }),
-        }
+      res.sendResponse(
+        200,
+        updateRoomHandler(id, name, req.user.id),
+        "Room details updated."
       )
-      res.sendResponse(200, updatedRoom, "Room details updated.")
       return
     } catch (err) {
       res.sendError(404, `No such room with id ${id} exist.`)
@@ -147,30 +70,15 @@ export const updateRoom: RequestHandler = async (req, res, next) => {
     next(err)
   }
 }
-/**
- * Rooms DELETE request:
- * Deletes a exisiting room
- *
- * @param id
- *
- */
+
 export const deleteRoom: RequestHandler = async (req, res, next) => {
   try {
     const id = req.params.id
-    /**
-     * Checking whether the room exists or not
-     */
     if ((await verifyRoomWithId(id)) == false) {
       res.sendError(404, `No such room with id ${id} exist.`)
       return
     }
-    /**
-     * Deleting Room
-     */
-    const deleteRoom = await Room.delete({
-      id,
-    })
-    res.sendResponse(200, deleteRoom, "Room Deleted.")
+    res.sendResponse(200, deleteRoomHandler(id), "Room Deleted.")
     return
   } catch (err) {
     next(err)
@@ -179,27 +87,23 @@ export const deleteRoom: RequestHandler = async (req, res, next) => {
 export const addSongToRoom: RequestHandler = async (req, res, next) => {
   try {
     const roomId = req.params.id
-    const { name, spotify_url } = await createSongsInput.validateAsync(req.body)
+    const data = await createSongsInput.validateAsync(req.body)
     if ((await verifyRoomWithId(roomId)) == false) {
       res.sendError(404, `No such room with roomId ${roomId} exist.`)
       return
     }
-    const userId = req.user.id
-    const song = await Song.create({
-      name: name,
-      added_by: User.create({
-        id: userId,
-      }),
-      spotify_url: spotify_url,
-      likes: 0,
-      dislikes: 0,
-      room: await Room.findOne({
-        id: roomId,
-      }),
-    }).save()
+    const { spotify_uri } = data
+    if (await isSongExistsInRoom(spotify_uri)) {
+      res.sendError(404, `Song already added in Room - ${roomId} .`)
+      return
+    }
+    const song = await addSong(req.user.id, roomId, data)
+    songAddedToRoom(roomId)
     res.sendResponse(200, song)
+    publishAction(roomId, actions.SONG_ADDED, song)
     return
   } catch (err) {
+    log(err);
     next(err)
   }
 }

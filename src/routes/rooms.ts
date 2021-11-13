@@ -14,7 +14,6 @@ authRoute.post("/", createRoom)
 authRoute.put("/:id", updateRoom)
 authRoute.delete("/:id", deleteRoom)
 
-
 export const rooms = {
   router: authRoute,
   path,

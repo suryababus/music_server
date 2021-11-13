@@ -24,6 +24,18 @@ export class Room extends BaseEntity {
   })
   name!: String
 
+  @Column({
+    type: "text",
+    name: "song_spotify_uri",
+  })
+  song_spotify_uri!: String
+
+  @Column({
+    type: "text",
+    name: "song_spotify_image",
+  })
+  song_spotify_image!: String
+
   @ManyToOne((type) => User, (user) => user.id)
   created_by!: User
 

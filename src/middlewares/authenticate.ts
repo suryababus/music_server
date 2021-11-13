@@ -1,17 +1,25 @@
 import { Request, Response } from "express"
 import jwt from "jsonwebtoken"
+import { log } from "../helper/logger/index"
+
+export const verifyToken = (token: string) => {
+  const userDetails = jwt.verify(token, "heyiamsecret")
+  return JSON.parse(JSON.stringify(userDetails))
+}
 
 export const authenticate = (req: Request, res: Response, next: any) => {
   const { token } = req.headers
-  if (token) {
+  if (typeof token === "string") {
     try {
-      const id = jwt.verify(token as string, "heyiamsecret") as any
+      const { id, displayName } = verifyToken(token)
       req.user = {
         email: "",
         id,
+        displayName,
       }
       next()
     } catch (err) {
+      log(err)
       res.sendError(401, "invalid token")
     }
   } else {
