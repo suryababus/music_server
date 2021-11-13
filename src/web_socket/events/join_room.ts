@@ -1,9 +1,10 @@
 import * as WebSocket from "ws"
 import { roomsWS, userRoomWS } from "."
 import { currentPlayingSongs } from "../../helper/schedular"
-import { sentActionForUser } from "../actions/actions"
+import { publishAction, sentActionForUser } from "../actions/actions"
 import { actions } from "../actions/actionsEnum"
 import { log } from "../../helper/logger/index"
+import { User } from "../../entities/user"
 
 export const event = "join_room"
 export const handler = (userId: string, message: any, ws: WebSocket) => {
@@ -29,4 +30,12 @@ export const handler = (userId: string, message: any, ws: WebSocket) => {
   if (!currentPlayingSong) return
   currentPlayingSong["currentMillis"] = new Date().getTime()
   sentActionForUser(ws, actions.PLAY_SONG, currentPlayingSong)
+
+  var userObject = {}
+  User.findOne(userId).then((user) => {
+    ;(userObject as any)["name"] = user?.name
+    ;(userObject as any)["id"] = user?.id
+  }).finally(() => {
+    publishAction(joinRoomId, actions.USER_JOIN, userObject)
+  })
 }

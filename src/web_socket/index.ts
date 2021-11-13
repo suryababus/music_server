@@ -45,7 +45,7 @@ export const addWebSocket = (app: Express): http.Server => {
       ws.close()
     })
     ws.on("ping", (message: any) => {
-      console.log("client pinged")
+      log("client pinged")
       sentActionForUser(ws, actions.PING, "ok")
     })
     clients.push(ws)

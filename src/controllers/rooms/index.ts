@@ -100,7 +100,12 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
     const song = await addSong(req.user.id, roomId, data)
     songAddedToRoom(roomId)
     res.sendResponse(200, song)
-    publishAction(roomId, actions.SONG_ADDED, song)
+    var songObject:any = {};
+    (songObject as any)["song_name"] = song.name;
+    (songObject as any)["user_name"] = req.user.displayName;
+    (songObject as any)["user_id"] = req.user.id;
+    (songObject as any)["song_id"] = song.id;
+    publishAction(roomId, actions.SONG_ADDED, songObject)
     return
   } catch (err) {
     log(err);

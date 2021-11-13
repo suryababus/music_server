@@ -1,5 +1,6 @@
 import { Reaction, ReactionEnum } from "../../entities/reaction"
 import { Song } from "../../entities/song"
+import { log } from "../../helper/logger"
 import { publishAction } from "../../web_socket/actions/actions"
 import { actions } from "../../web_socket/actions/actionsEnum"
 
@@ -14,22 +15,26 @@ export async function createReaction(
     searchkey: roomId + ":" + songId + ":" + userId,
     reaction: reaction,
   }).save()
-  const songData = await Song.find({
+  const songData = await Song.findOne({
     id: songId,
   })
   if (reaction === ReactionEnum.Like) {
-    updateLike(songId, songData[0].likes.toString(), "addition")
+    updateLike(songId, songData!.likes.toString(), "addition")
   } else if (reaction === ReactionEnum.Dislike) {
-    updateDisLike(songId, songData[0].dislikes.toString(), "addition")
+    updateDisLike(songId, songData!.dislikes.toString(), "addition")
   }
   const songDataAfterUpdate = await Song.find({
     id: songId,
   })
 
-  var reactionsObject = {}
-  ;(reactionsObject as any)["likes"] = songDataAfterUpdate[0].likes
-  ;(reactionsObject as any)["dislikes"] = songDataAfterUpdate[0].dislikes
-  ;(reactionsObject as any)["name"] = userName
+  var reactionsObject = {};
+  (reactionsObject as any)["likes"] = songDataAfterUpdate[0].likes;
+  (reactionsObject as any)["dislikes"] = songDataAfterUpdate[0].dislikes;
+  (reactionsObject as any)["user_name"] = userName;
+  (reactionsObject as any)["user_id"] = userId;
+  (reactionsObject as any)["song_id"] = songData!.id;
+  (reactionsObject as any)["song_name"] = songData!.name;
+  (reactionsObject as any)["reaction"] = reaction;
   publishAction(roomId, actions.REACTION, reactionsObject)
 
   return createReaction
@@ -50,29 +55,30 @@ export async function updateReaction(
       reaction: reaction,
     }
   )
-  const songData = await Song.find({
+  const songData = await Song.findOne({
     id: songId,
   })
   if (reaction === existingReaction) {
     return updateReaction
   }
   if (existingReaction == ReactionEnum.Dislike) {
-    updateDisLike(songId, songData[0].dislikes.toString(), "subtraction")
+    updateDisLike(songId, songData!.dislikes.toString(), "subtraction")
   } else if (existingReaction == ReactionEnum.Like) {
-    updateLike(songId, songData[0].likes.toString(), "subtraction")
+    updateLike(songId, songData!.likes.toString(), "subtraction")
   }
   if (reaction == ReactionEnum.Dislike) {
-    updateDisLike(songId, songData[0].dislikes.toString(), "addition")
+    updateDisLike(songId, songData!.dislikes.toString(), "addition")
   } else if (reaction == ReactionEnum.Like) {
-    updateLike(songId, songData[0].likes.toString(), "addition")
+    updateLike(songId, songData!.likes.toString(), "addition")
   }
   const songDataAfterUpdate = await Song.find({
     id: songId,
   })
-  var reactionsObject = {}
-  ;(reactionsObject as any)["likes"] = songDataAfterUpdate[0].likes
-  ;(reactionsObject as any)["dislikes"] = songDataAfterUpdate[0].dislikes
-  ;(reactionsObject as any)["name"] = userName
+  var reactionsObject = {};
+  (reactionsObject as any)["likes"] = songDataAfterUpdate[0].likes;
+  (reactionsObject as any)["dislikes"] = songDataAfterUpdate[0].dislikes;
+  (reactionsObject as any)["user_name"] = userName;
+  (reactionsObject as any)["reaction"] = reaction;
   publishAction(roomId, actions.REACTION, reactionsObject)
 
   return updateReaction
