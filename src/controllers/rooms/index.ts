@@ -17,7 +17,7 @@ export const getRooms: RequestHandler = async (req, res, next) => {
 export const searchRooms: RequestHandler = async (req, res, next) => {
   try {
     const name = req.query.key
-    res.sendResponse(200, searchRoomsFull())
+    res.sendResponse(200, await searchRoomsFull(name))
   } catch (err) {
     next(err)
   }
@@ -100,7 +100,12 @@ export const addSongToRoom: RequestHandler = async (req, res, next) => {
     const song = await addSong(req.user.id, roomId, data)
     songAddedToRoom(roomId)
     res.sendResponse(200, song)
-    publishAction(roomId, actions.SONG_ADDED, song)
+    var songObject:any = {};
+    (songObject as any)["song_name"] = song.name;
+    (songObject as any)["user_name"] = req.user.displayName;
+    (songObject as any)["user_id"] = req.user.id;
+    (songObject as any)["song_id"] = song.id;
+    publishAction(roomId, actions.SONG_ADDED, songObject)
     return
   } catch (err) {
     log(err);

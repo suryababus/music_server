@@ -97,5 +97,5 @@ export class Song extends BaseEntity {
   added_by_user_name!: String
 
   @CreateDateColumn()
-  added_time!: Number
+  added_time!: Date
 }

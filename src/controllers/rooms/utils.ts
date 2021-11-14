@@ -1,8 +1,10 @@
 import { In } from "typeorm";
+import { PlayedSongs } from "../../entities/playedSongs";
 import { Reaction, ReactionEnum } from "../../entities/reaction";
 import { Room } from "../../entities/room"
 import { Song } from "../../entities/song";
 import { User } from "../../entities/user";
+import { log } from "../../helper/logger";
 
 export async function verifyRoomWithId(id : any){
     const alreadyExist = await Room.find({
@@ -108,13 +110,12 @@ export async function getSpecificRoom(id: any, user_Id: any) {
       where: {
         id,
       },
-      relations: ["created_by", "modified_by", "songs"],
+      relations: ["created_by", "modified_by"],
     })
-    // const room = await Room.createQueryBuilder().where().leftJoin('created_by','created_by').getOne()
+    const songs = await Song.createQueryBuilder("song").where("song.room = :room_id", { room_id: id }).orderBy("song.likes", "DESC").addOrderBy('song.dislikes', 'ASC').getMany();
     /**
      * Adding Reaction to room object
      */
-    var songs = room?.songs
     var searchKeys: string[] = []
     songs?.forEach((songObject) => {
       searchKeys.push(id + ":" + songObject.id + ":" + user_Id)
@@ -136,9 +137,7 @@ export async function getSpecificRoom(id: any, user_Id: any) {
         ;(songObject as any)["reaction"] = reactionMap[currentSKey]
       }
     })
-    songs?.sort((a, b) => {
-      return a.likes > b.likes ? -1 : 1;
-    });
+    ;(room as any)["songs"] = songs
     return room
   }
   
@@ -149,12 +148,34 @@ export async function getRooms(){
     })
 }
   
-export async function searchRooms(){
-    return await Room.createQueryBuilder()
-    .select()
-    .where("name ILIKE :name", {
-        name: `%${name}%`,
-    })
-    .limit(50)
+export async function searchRooms(name : any){
+    return Room.createQueryBuilder("room").where("room.name ILIKE :name", {
+      name: `%${name}%`,
+    }).limit(50)
     .getMany()
+}
+  
+export async function backupAndDeleteSong(id : any){
+  try{
+    const song = await Song.findOne({id});
+    await PlayedSongs.create({
+      name : song?.name,
+      spotify_uri : song?.spotify_uri,
+      artist_id : song?.artist_id,
+      artist_name : song?.artist_name,
+      duration_ms : song?.duration_ms,
+      spotify_id : song?.spotify_id,
+      image_url_large : song?.image_url_large,
+      image_url_medium : song?.image_url_medium,
+      image_url_small : song?.image_url_small,
+      added_by: song?.added_by,
+      added_by_user_name: song?.added_by_user_name,
+      likes: song?.likes,
+      dislikes: song?.dislikes,
+      room: song?.room,
+    }).save()
+    return await song?.remove();
+  }catch(e){
+    return
+  }
 }
