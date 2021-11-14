@@ -1,5 +1,5 @@
 import { In } from "typeorm";
-import { DeletedSongs } from "../../entities/playedSongs";
+import { DeletedSongs } from "../../entities/deletedSongs";
 import { Reaction, ReactionEnum } from "../../entities/reaction";
 import { Room } from "../../entities/room"
 import { Song } from "../../entities/song";
