@@ -23,9 +23,9 @@ export async function createReaction(
     throw "No such song found!."
   }
   if (reaction === ReactionEnum.Like) {
-    updateLike(songId, songData!.likes.toString(), "addition")
+    updateLike(songId, songData.likes.toString(), "addition")
   } else if (reaction === ReactionEnum.Dislike) {
-    updateDisLike(songId, songData!.dislikes.toString(), "addition")
+    updateDisLike(songId, songData.dislikes.toString(), "addition")
   }
   const songDataAfterUpdate = await Song.findOne({
     id: songId,
@@ -35,8 +35,8 @@ export async function createReaction(
   (reactionsObject as any)["dislikes"] = songDataAfterUpdate!.dislikes;
   (reactionsObject as any)["user_name"] = userName;
   (reactionsObject as any)["user_id"] = userId;
-  (reactionsObject as any)["song_id"] = songData!.id;
-  (reactionsObject as any)["song_name"] = songData!.name;
+  (reactionsObject as any)["song_id"] = songData.id;
+  (reactionsObject as any)["song_name"] = songData.name;
   (reactionsObject as any)["reaction"] = reaction;
   publishAction(roomId, actions.REACTION, reactionsObject)
   return createReaction
@@ -82,7 +82,7 @@ export async function updateReaction(
   (reactionsObject as any)["user_name"] = userName;
   (reactionsObject as any)["reaction"] = reaction;
   publishAction(roomId, actions.REACTION, reactionsObject)
-  if(await isSongAllowedToBeDeleted(songDataAfterUpdate!)){
+  if(await isSongMostDisliked(songDataAfterUpdate!)){
     backupAndDeleteSong(songDataAfterUpdate?.id)
   }
   return updateReaction
@@ -113,7 +113,7 @@ async function updateDisLike(
     }
   )
 }
-async function isSongAllowedToBeDeleted(song: Song) {
+async function isSongMostDisliked(song: Song) {
   if(song === undefined){
     return false
   }

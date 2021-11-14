@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, Index, PrimaryColumn } from "typeorm";
 
 @Entity('users')
 export class User extends BaseEntity{
@@ -8,6 +8,7 @@ export class User extends BaseEntity{
     })
     id!: String;
 
+    @Index()
     @Column({
         type:'text',
         name:'first_name'
@@ -16,7 +17,7 @@ export class User extends BaseEntity{
 
     @Column({
         type:'text',
-        name:'last_name'
+        name:'email'
     })
     email!: String;
     

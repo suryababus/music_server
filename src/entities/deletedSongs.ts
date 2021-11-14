@@ -10,8 +10,8 @@ import {
   import { Room } from "./room"
   import { User } from "./user"
   
-  @Entity("playedSongs")
-  export class PlayedSongs extends BaseEntity {
+  @Entity("deletedSongs")
+  export class DeletedSongs extends BaseEntity {
     @PrimaryGeneratedColumn("uuid")
     id!: String
   
@@ -96,6 +96,6 @@ import {
     added_by_user_name!: String
   
     @CreateDateColumn()
-    added_time!: Number
+    added_time!: Date
   }
   
