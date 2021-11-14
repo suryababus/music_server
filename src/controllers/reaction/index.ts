@@ -8,81 +8,54 @@ export const addReaction: RequestHandler = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { action } = await validateAction.validateAsync(req.body)
-    log(req.body);
     const roomId = req.params.room_id
     const songId = req.params.song_id
-    const alreadyExist = await Reaction.find({
+    const alreadyExist = await Reaction.findOne({
       searchkey: roomId + ":" + songId + ":" + userId,
     })
+    var actionRequired : ReactionEnum = ReactionEnum.None;
     switch (action) {
-      case "like": {
-        if (alreadyExist.length == 0) {
-          createReaction(
-            roomId,
-            songId,
-            userId,
-            ReactionEnum.Like,
-            req.user.displayName
-          )
-        } else {
-          updateReaction(
-            roomId,
-            songId,
-            userId,
-            alreadyExist[0].reaction,
-            ReactionEnum.Like,
-            req.user.displayName
-          )
-        }
-        break
-      }
-      case "dislike": {
-        if (alreadyExist.length == 0) {
-          createReaction(
-            roomId,
-            songId,
-            userId,
-            ReactionEnum.Dislike,
-            req.user.displayName
-          )
-        } else {
-          updateReaction(
-            roomId,
-            songId,
-            userId,
-            alreadyExist[0].reaction,
-            ReactionEnum.Dislike,
-            req.user.displayName
-          )
-        }
-        break
-      }
-      case "none": {
-        if (alreadyExist.length == 0) {
-          createReaction(
-            roomId,
-            songId,
-            userId,
-            ReactionEnum.None,
-            req.user.displayName
-          )
-        } else {
-          updateReaction(
-            roomId,
-            songId,
-            userId,
-            alreadyExist[0].reaction,
-            ReactionEnum.None,
-            req.user.displayName
-          )
-        }
-        break
-      }
-      default: {
+      case "like": 
+        actionRequired = ReactionEnum.Like;
+        break;
+      case "dislike": 
+        actionRequired = ReactionEnum.Dislike;
+        break;
+      case "none":
+        actionRequired = ReactionEnum.None;
+        break;
+      default: 
         res.sendError(400, `No such action available`)
+        return
+    }
+    if (alreadyExist === undefined) {
+      try{
+        const createdReaction = await createReaction(
+          roomId,
+          songId,
+          userId,
+          actionRequired,
+          req.user.displayName
+        )
+        res.sendResponse(200, createdReaction)
+      }catch(err){
+        res.sendError(400, err)
+      }
+    } else {
+      try{
+        const updatedReaction = await updateReaction(
+          roomId,
+          songId,
+          userId,
+          alreadyExist.reaction,
+          actionRequired,
+          req.user.displayName
+        )
+        res.sendResponse(200, updatedReaction)
+      }catch(err){
+        res.sendError(400, err)
       }
     }
-    res.sendResponse(200, "Reaction has been updated for the song")
   } catch (err) {
     next(err)
   }

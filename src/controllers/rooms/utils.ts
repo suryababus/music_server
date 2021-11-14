@@ -4,6 +4,7 @@ import { Reaction, ReactionEnum } from "../../entities/reaction";
 import { Room } from "../../entities/room"
 import { Song } from "../../entities/song";
 import { User } from "../../entities/user";
+import { log } from "../../helper/logger";
 
 export async function verifyRoomWithId(id : any){
     const alreadyExist = await Room.find({

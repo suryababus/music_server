@@ -10,7 +10,7 @@ import {
   import { Room } from "./room"
   import { User } from "./user"
   
-  @Entity("song")
+  @Entity("playedSongs")
   export class PlayedSongs extends BaseEntity {
     @PrimaryGeneratedColumn("uuid")
     id!: String
