@@ -1,5 +1,5 @@
 import { In } from "typeorm";
-import { PlayedSongs } from "../../entities/playedSongs";
+import { DeletedSongs } from "../../entities/deletedSongs";
 import { Reaction, ReactionEnum } from "../../entities/reaction";
 import { Room } from "../../entities/room"
 import { Song } from "../../entities/song";
@@ -158,7 +158,7 @@ export async function searchRooms(name : any){
 export async function backupAndDeleteSong(id : any){
   try{
     const song = await Song.findOne({id});
-    await PlayedSongs.create({
+    await DeletedSongs.create({
       name : song?.name,
       spotify_uri : song?.spotify_uri,
       artist_id : song?.artist_id,
