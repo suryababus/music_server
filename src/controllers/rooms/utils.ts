@@ -148,13 +148,10 @@ export async function getRooms(){
     })
 }
   
-export async function searchRooms(){
-    return await Room.createQueryBuilder()
-    .select()
-    .where("name ILIKE :name", {
-        name: `%${name}%`,
-    })
-    .limit(50)
+export async function searchRooms(name : any){
+    return Room.createQueryBuilder("room").where("room.name ILIKE :name", {
+      name: `%${name}%`,
+    }).limit(50)
     .getMany()
 }
   

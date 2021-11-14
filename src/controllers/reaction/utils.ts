@@ -27,12 +27,12 @@ export async function createReaction(
   } else if (reaction === ReactionEnum.Dislike) {
     updateDisLike(songId, songData!.dislikes.toString(), "addition")
   }
-  const songDataAfterUpdate = await Song.find({
+  const songDataAfterUpdate = await Song.findOne({
     id: songId,
   })
   var reactionsObject = {};
-  (reactionsObject as any)["likes"] = songDataAfterUpdate[0].likes;
-  (reactionsObject as any)["dislikes"] = songDataAfterUpdate[0].dislikes;
+  (reactionsObject as any)["likes"] = songDataAfterUpdate!.likes;
+  (reactionsObject as any)["dislikes"] = songDataAfterUpdate!.dislikes;
   (reactionsObject as any)["user_name"] = userName;
   (reactionsObject as any)["user_id"] = userId;
   (reactionsObject as any)["song_id"] = songData!.id;
