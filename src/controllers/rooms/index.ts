@@ -17,7 +17,7 @@ export const getRooms: RequestHandler = async (req, res, next) => {
 export const searchRooms: RequestHandler = async (req, res, next) => {
   try {
     const name = req.query.key
-    res.sendResponse(200, searchRoomsFull())
+    res.sendResponse(200, await searchRoomsFull(name))
   } catch (err) {
     next(err)
   }

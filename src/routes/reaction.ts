@@ -1,10 +1,6 @@
 import express from "express"
-import {
-    addReaction
-} from "../controllers/reaction"
-import {
-    authenticate
-} from "../middlewares/authenticate"
+import {addReaction} from "../controllers/reaction"
+import {authenticate} from "../middlewares/authenticate"
 const authRoute = express.Router()
 
 const path = "/reaction"

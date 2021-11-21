@@ -3,10 +3,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
+  Index,
   ManyToOne,
   OneToMany,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm"
@@ -18,6 +17,7 @@ export class Room extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: String
 
+  @Index()
   @Column({
     type: "text",
     name: "name",

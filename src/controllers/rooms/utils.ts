@@ -1,5 +1,5 @@
 import { In } from "typeorm";
-import { PlayedSong } from "../../entities/playedSongs";
+import { DeletedSongs } from "../../entities/deletedSongs";
 import { Reaction, ReactionEnum } from "../../entities/reaction";
 import { Room } from "../../entities/room"
 import { Song } from "../../entities/song";
@@ -148,13 +148,10 @@ export async function getRooms(){
     })
 }
   
-export async function searchRooms(){
-    return await Room.createQueryBuilder()
-    .select()
-    .where("name ILIKE :name", {
-        name: `%${name}%`,
-    })
-    .limit(50)
+export async function searchRooms(name : any){
+    return Room.createQueryBuilder("room").where("room.name ILIKE :name", {
+      name: `%${name}%`,
+    }).limit(50)
     .getMany()
 }
   
@@ -162,7 +159,7 @@ export async function backupAndDeleteSong(id : any){
   try{
     const song = await Song.createQueryBuilder("song").where("song.id = :id", { id }).loadAllRelationIds().getRawOne()
     
-    await PlayedSong.create({
+    await DeletedSongs.create({
       name : song?.song_name,
       spotify_uri : song?.song_spotify_uri,
       artist_id : song?.song_artist_id,
