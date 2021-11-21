@@ -7,7 +7,7 @@ import { sentActionForUser } from "../actions/actions"
 import { log } from "../../helper/logger/index"
 
 export const event = "sync"
-export const handler = async (userId: string, message: any, ws: WebSocket) => {
+export const handler = async (userId: string,userName:string, message: any, ws: WebSocket) => {
   log(`handler: user:${userId} message:${message.data}`)
   const { roomId } = userRoomWS[userId]
   const songs = await Song.find({

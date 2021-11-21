@@ -78,6 +78,9 @@ export async function updateReaction(
   (reactionsObject as any)["likes"] = songDataAfterUpdate[0].likes;
   (reactionsObject as any)["dislikes"] = songDataAfterUpdate[0].dislikes;
   (reactionsObject as any)["user_name"] = userName;
+  (reactionsObject as any)["user_id"] = userId;
+  (reactionsObject as any)["song_id"] = songData!.id;
+  (reactionsObject as any)["song_name"] = songData!.name;
   (reactionsObject as any)["reaction"] = reaction;
   publishAction(roomId, actions.REACTION, reactionsObject)
 

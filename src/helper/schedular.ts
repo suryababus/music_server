@@ -25,6 +25,7 @@ export const startSongPlayer = async (roomId: string) => {
     currentPlayingSongs[roomId] = {
       currentSong,
       startedMillis,
+      currentMillis: new Date().getTime()
     }
     const songs = await Song.find({
       where: {

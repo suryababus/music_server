@@ -7,7 +7,7 @@ import { log } from "../../helper/logger/index"
 import { User } from "../../entities/user"
 
 export const event = "join_room"
-export const handler = (userId: string, message: any, ws: WebSocket) => {
+export const handler = (userId: string,userName:string, message: any, ws: WebSocket) => {
   log(`handler: user:${userId} message:${message.data}`)
   const joinRoomId = message.data
   if (!roomsWS[joinRoomId]) {

@@ -6,4 +6,5 @@ export enum actions {
   USER_JOIN = "user_join",
   SYNC = "sync",
   PING = "ping",
+  TEXT_MESSAGE = "text_message"
 }

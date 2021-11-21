@@ -17,9 +17,9 @@ let events: any = {
   sync: sync.handler,
 }
 
-export const handleEvents = (userId: string, message: any, ws: WebSocket) => {
+export const handleEvents = (userId: string,userName: string, message: any, ws: WebSocket) => {
   const event = message.event as string
   const handler = events[event]
   if (!handler) return
-  handler(userId, message, ws)
+  handler(userId,userName, message, ws)
 }
