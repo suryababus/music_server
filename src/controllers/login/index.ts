@@ -23,6 +23,10 @@ export const login: RequestHandler = async (req, res, next) => {
         const token = jwt.sign(userDetails, "heyiamsecret")
         res.sendResponse(200, {
           token,
+          user: {
+            ...user,
+            newUser: false,
+          }
         })
       } catch (err) {
         // create new user
@@ -38,7 +42,10 @@ export const login: RequestHandler = async (req, res, next) => {
         const token = jwt.sign(userDetails, "heyiamsecret")
         res.sendResponse(200, {
           token,
-          newUser: true,
+          user: {
+            ...user,
+            newUser: true,
+          }
         })
         return
       }
