@@ -3,13 +3,17 @@ import * as textMessage from "./text_message"
 import * as joinRoom from "./join_room"
 import * as sync from "./sync"
 
-type wsUser = {
+type wsRoom = {
   ws: WebSocket
   roomId: string
 }
+type wsUser = {
+  ws: WebSocket
+  userId: string
+}
 
 export let roomsWS: Record<string, [WebSocket?]> = {}
-export let userRoomWS: Record<string, wsUser> = {}
+export let userRoomWS: Record<string, wsRoom> = {}
 
 let events: any = {
   text_message: textMessage.handler,

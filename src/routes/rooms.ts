@@ -1,20 +1,20 @@
 import express from "express"
 import { createRoom , getRooms, getRoom, updateRoom, deleteRoom, searchRooms, addSongToRoom} from "../controllers/rooms"
 import { authenticate } from "../middlewares/authenticate"
-const authRoute = express.Router()
+const route = express.Router()
 
 const path = "/rooms"
-authRoute.use(authenticate)
+route.use(authenticate)
 
-authRoute.get("/", getRooms)
-authRoute.get("/search", searchRooms)
-authRoute.post("/:id/songs", addSongToRoom)
-authRoute.get("/:id",getRoom)
-authRoute.post("/", createRoom)
-authRoute.put("/:id", updateRoom)
-authRoute.delete("/:id", deleteRoom)
+route.get("/", getRooms)
+route.get("/search", searchRooms)
+route.post("/:id/songs", addSongToRoom)
+route.get("/:id",getRoom)
+route.post("/", createRoom)
+route.put("/:id", updateRoom)
+route.delete("/:id", deleteRoom)
 
 export const rooms = {
-  router: authRoute,
+  router: route,
   path,
 }

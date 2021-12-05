@@ -3,10 +3,10 @@ import { authenticate } from "../middlewares/authenticate"
 import {searchDetails} from "../controllers/search"
 const authRoute = express.Router()
 
-const path = "/global"
+const path = "/search"
 authRoute.use(authenticate)
 
-authRoute.get("/search", searchDetails)
+authRoute.get("/", searchDetails)
 
 export const search = {
   router: authRoute,

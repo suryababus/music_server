@@ -77,9 +77,11 @@ const popularSong = async (roomId: string): Promise<Song | null> => {
 
 export const startSchedularForAllRooms = async () => {
   const rooms = await Room.find()
+  let promises:Promise<void>[] = []
   rooms.forEach((room) => {
-    startSongPlayer(room.id as string)
+    promises.push(startSongPlayer(room.id as string))
   })
+  await Promise.all(promises)
 }
 
 export const songAddedToRoom = (roomId: string) => {
