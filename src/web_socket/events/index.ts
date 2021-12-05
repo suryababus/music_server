@@ -3,13 +3,17 @@ import * as textMessage from "./text_message"
 import * as joinRoom from "./join_room"
 import * as sync from "./sync"
 
-type wsUser = {
+type wsRoom = {
   ws: WebSocket
   roomId: string
 }
+type wsUser = {
+  ws: WebSocket
+  userId: string
+}
 
 export let roomsWS: Record<string, [WebSocket?]> = {}
-export let userRoomWS: Record<string, wsUser> = {}
+export let userRoomWS: Record<string, wsRoom> = {}
 
 let events: any = {
   text_message: textMessage.handler,
@@ -17,9 +21,9 @@ let events: any = {
   sync: sync.handler,
 }
 
-export const handleEvents = (userId: string, message: any, ws: WebSocket) => {
+export const handleEvents = (userId: string,userName: string, message: any, ws: WebSocket) => {
   const event = message.event as string
   const handler = events[event]
   if (!handler) return
-  handler(userId, message, ws)
+  handler(userId,userName, message, ws)
 }

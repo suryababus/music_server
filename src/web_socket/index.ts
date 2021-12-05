@@ -24,14 +24,16 @@ export const addWebSocket = (app: Express): http.Server => {
         const msgObj = JSON.parse(message.toString())
         const token = msgObj.token
         let userId = ""
+        let userName=""
         if (token) {
-          const { id } = verifyToken(token)
+          const { id, displayName }  = verifyToken(token)
           userId = id
+          userName = displayName
         } else {
           ws.send("token required")
           throw "token required"
         }
-        handleEvents(userId, msgObj, ws)
+        handleEvents(userId,userName, msgObj, ws)
       } catch (err) {
         ws.send(`error: ${err}`)
         log(err)

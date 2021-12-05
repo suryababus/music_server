@@ -157,25 +157,27 @@ export async function searchRooms(name : any){
   
 export async function backupAndDeleteSong(id : any){
   try{
-    const song = await Song.findOne({id});
+    const song = await Song.createQueryBuilder("song").where("song.id = :id", { id }).loadAllRelationIds().getRawOne()
+    
     await DeletedSongs.create({
-      name : song?.name,
-      spotify_uri : song?.spotify_uri,
-      artist_id : song?.artist_id,
-      artist_name : song?.artist_name,
-      duration_ms : song?.duration_ms,
-      spotify_id : song?.spotify_id,
-      image_url_large : song?.image_url_large,
-      image_url_medium : song?.image_url_medium,
-      image_url_small : song?.image_url_small,
-      added_by: song?.added_by,
-      added_by_user_name: song?.added_by_user_name,
-      likes: song?.likes,
-      dislikes: song?.dislikes,
-      room: song?.room,
+      name : song?.song_name,
+      spotify_uri : song?.song_spotify_uri,
+      artist_id : song?.song_artist_id,
+      artist_name : song?.song_artist_name,
+      duration_ms : song?.song_duration_ms,
+      spotify_id : song?.song_spotify_id,
+      image_url_large : song?.song_image_url_large,
+      image_url_medium : song?.song_image_url_medium,
+      image_url_small : song?.song_image_url_small,
+      added_by: song?.song_added_by,
+      added_by_user_name: song?.song_added_by_user_name,
+      likes: song?.song_likes,
+      dislikes: song?.song_dislikes,
+      room: song?.song_room,
     }).save()
-    return await song?.remove();
-  }catch(e){
+    return await Song.remove(Song.create({id}));
+  } catch (e) {
+    log(e)
     return
   }
 }

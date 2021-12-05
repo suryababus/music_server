@@ -1,6 +1,7 @@
-{
+
+module.exports = {
     "type": "postgres",
-    "host": "postgres",
+    "host": process.env.db_ip || "postgres",
     "port": 5432,
     "username": "surya",
     "password": "mysecretpassword",
