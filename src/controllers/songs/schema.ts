@@ -1,7 +1,7 @@
 import Joi from "joi"
 
-export const extractParam = Joi.object({
-  room_id: Joi.string(),
-  perPage: Joi.number().required(),
+export const getLikedSongsInput = Joi.object({
+  roomId: Joi.string(),
+  perPage: Joi.number().max(50).required(),
   page: Joi.number().required()
 })
