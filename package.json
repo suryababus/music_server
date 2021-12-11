@@ -6,7 +6,7 @@
     "start:dev": "nodemon src/start",
     "start": "npx ts-node-dev ./src/start.ts  ",
     "test": "NODE_ENV=test db_port=5432 db_ip=localhost jest --detectOpenHandles",
-    "test:watch":"npm run test -- --watch"
+    "test:watch": "npm run test -- --watch"
   },
   "author": "",
   "license": "ISC",
