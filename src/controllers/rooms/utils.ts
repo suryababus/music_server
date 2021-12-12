@@ -129,12 +129,12 @@ export async function getSpecificRoom(id: any, user_Id: any) {
     reactions.forEach((reaction) => {
       reactionMap[reaction.searchkey as string] = reaction.reaction
     })
-    songs?.forEach((songObject) => {
+    songs.forEach((songObject) => {
       var currentSKey: string = id + ":" + songObject.id + ":" + user_Id
       if (reactionMap[currentSKey] == undefined) {
-        ;(songObject as any)["reaction"] = ReactionEnum.None
+        (songObject as any)["reaction"] = ReactionEnum.None
       } else {
-        ;(songObject as any)["reaction"] = reactionMap[currentSKey]
+        (songObject as any)["reaction"] = reactionMap[currentSKey]
       }
     })
     ;(room as any)["songs"] = songs

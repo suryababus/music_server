@@ -3,9 +3,9 @@ import { getFollowers, getFollowing, postFollowUser } from "../controllers/follo
 import { authenticate } from "../middlewares/authenticate"
 const authRoute = express.Router()
 
-const path = "/follow"
+const path = "/"
 authRoute.use(authenticate)
-authRoute.post("/:userId", postFollowUser);
+authRoute.post("/follow/:userId", postFollowUser);
 authRoute.get("/followers", getFollowers)
 authRoute.get("/following", getFollowing)
 
