@@ -6,23 +6,25 @@ type getFollowesInput = {
     userId: string
 }
 
-export async function getFollowersList(followerDetails : getFollowesInput) {
+export async function getFollowersList(followerDetails: getFollowesInput) {
     const {
         perPage,
         page,
         userId,
     } = followerDetails
     console.log(userId)
-    let queryBuilder =  Follower.createQueryBuilder("follower").where("follower.following = :user_id", { user_id: userId });
-    queryBuilder.leftJoinAndSelect("follower.user", "users").orderBy("follower.created_time", "DESC")
+    let queryBuilder = Follower.createQueryBuilder("follower").where("follower.following = :user_id", { user_id: userId });
+    queryBuilder.leftJoinAndSelect("follower.user", "user")
+        .orderBy("follower.created_time", "DESC")
+        .select(['user.id as id', 'user.name as name', 'user.email as email'])
     const totalRows = await queryBuilder.getCount()
     queryBuilder.offset(perPage * (page - 1)).limit(perPage)
-    const followers = await queryBuilder.getMany()
+    const followers = await queryBuilder.getRawMany()
     return {
-        followers:  followers,
+        followers: followers,
         meta: {
             total_count: totalRows,
-            per_page:perPage,
+            per_page: perPage,
             page,
             count: followers.length
         }
