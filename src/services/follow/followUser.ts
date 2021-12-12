@@ -6,7 +6,14 @@ export async function followUser(currentUserId : string , userId : string) {
     if(following == undefined){
         throw new EvalError("Invalid Following user");
     }
-   const follower = Follower.create({
+    if(currentUserId == userId){
+        throw new EvalError("Cannot follow yourself!.");
+    }
+    const existingData = await Follower.createQueryBuilder("follower").where("follower.user = :current_user_id AND follower.following = :follower_user_id ", { current_user_id: currentUserId, follower_user_id : userId }).getMany();
+    if(existingData.length > 0){
+        throw new EvalError("You are already following the same person");
+    }
+    const follower = Follower.create({
         user: await User.findOne({id:currentUserId}),
         following: following,
     });

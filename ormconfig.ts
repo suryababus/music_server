@@ -7,7 +7,7 @@ module.exports = {
     "password": "mysecretpassword",
     "database": "music",
     "synchronize": true,
-    "logging": false,
+    "logging": true,
     "entities": [
         "src/entities/**/*.ts"
     ]
